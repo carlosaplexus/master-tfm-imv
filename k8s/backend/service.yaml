@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend
+  namespace: imv-simulacion
+spec:
+  type: ClusterIP
+  ports:
+    - port: 5001
+  selector:
+    app: backend

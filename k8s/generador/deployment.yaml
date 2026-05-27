@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: generator
+  namespace: imv-simulacion
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: generator
+  template:
+    metadata:
+      labels:
+        app: generator
+    spec:
+      containers:
+      - name: generator
+        image: tuimagen/generador:latest
+        env:
+        - name: BACKEND_URL
+          valueFrom:
+            configMapKeyRef:
+              name: generator-config
+              key: BACKEND_URL

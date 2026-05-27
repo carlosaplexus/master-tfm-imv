@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend
+  namespace: imv-simulacion
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      labels:
+        app: backend
+    spec:
+      serviceAccountName: backend-sa   # ← definido en tu rbac.yaml
+      containers:
+      - name: backend
+        image: ghcr.io/TU_USUARIO/backend:latest
+        ports:
+        - containerPort: 5001
+        env:
+        - name: DATABASE_URL
+          valueFrom:
+            configMapKeyRef:
+              name: backend-config
+              key: DATABASE_URL
+        - name: K8S_NAMESPACE
+          valueFrom:
+            configMapKeyRef:
+              name: backend-config
+              key: K8S_NAMESPACE
+        - name: GENERATOR_IMAGE
+          valueFrom:
+            configMapKeyRef:
+              name: backend-config
+              key: GENERATOR_IMAGE
+        - name: BACKEND_URL
+          valueFrom:
+            configMapKeyRef:
+              name: backend-config
+              key: BACKEND_URL
+
+

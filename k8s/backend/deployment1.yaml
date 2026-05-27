@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend
+  namespace: imv-simulacion
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      labels:
+        app: backend
+    spec:
+      containers:
+      - name: backend
+        image: tuimagen/backend:latest
+        ports:
+        - containerPort: 5001
+        env:
+        - name: DATABASE_URL
+          valueFrom:
+            configMapKeyRef:
+              name: backend-config
+              key: DATABASE_URL
+spec:
+  template:
+    spec:
+      serviceAccountName: backend-sa
+      containers:
+      - name: backend
+        image: tuimagen/backend:latest
+        env:
+        - name: K8S_NAMESPACE
+          value: "imv-simulacion"
+        - name: GENERATOR_IMAGE
+          value: "tuimagen/generador:latest"
+        - name: BACKEND_URL
+          value: "http://backend:5001/api/patients"
