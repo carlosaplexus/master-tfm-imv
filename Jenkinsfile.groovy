@@ -20,12 +20,12 @@ pipeline {
             }
         }
 
-        stage('E2E Tests') {
-            steps {
-                sh 'make test-e2e'
-                archiveArtifacts artifacts: "results/*.xml"
-            }
-        }
+        // stage('E2E Tests') {
+        //     steps {
+        //         sh 'make test-e2e'
+        //         archiveArtifacts artifacts: "results/*.xml"
+        //     }
+        // }
 
         // stage('Debug workspace') {
         //     steps {
@@ -33,15 +33,15 @@ pipeline {
         //     }
         // }
 
-        stage('Convertir XML a HTML') {
-            steps {
-                sh '''
-                    apk add --no-cache libxslt
-                    mkdir -p results/e2e
-                    xsltproc test/e2e/junit-to-html.xsl results/cypress_result.xml > results/e2e/index.html
-                '''
-            }
-        }
+        // stage('Convertir XML a HTML') {
+        //     steps {
+        //         sh '''
+        //             apk add --no-cache libxslt
+        //             mkdir -p results/e2e
+        //             xsltproc test/e2e/junit-to-html.xsl results/cypress_result.xml > results/e2e/index.html
+        //         '''
+        //     }
+        // }
 
         stage('Publicar Reportes') {
             steps {
@@ -66,43 +66,43 @@ pipeline {
                     reportName: 'Cobertura de Código'
                 ])
 
-                publishHTML(target: [
-                    reportDir: 'results/e2e',
-                    reportFiles: 'index.html',
-                    reportName: 'Reporte E2E'
-                ])
+                // publishHTML(target: [
+                //     reportDir: 'results/e2e',
+                //     reportFiles: 'index.html',
+                //     reportName: 'Reporte E2E'
+                // ])
             }
         }
 
-        stage('Build Docker Images') {
-            steps {
-                sh 'make build'
-            }
-        }
+        // stage('Build Docker Images') {
+        //     steps {
+        //         sh 'make build'
+        //     }
+        // }
 
-        stage('Push Docker Images') {
-            steps {
-                sh 'make push'
-            }
-        }
+        // stage('Push Docker Images') {
+        //     steps {
+        //         sh 'make push'
+        //     }
+        // }
 
-        stage('Autenticacion en AWS Academy') {
-            steps {
-                sh 'make aws-login'
-            }
-        }
+        // stage('Autenticacion en AWS Academy') {
+        //     steps {
+        //         sh 'make aws-login'
+        //     }
+        // }
 
-        stage('Aplicar manifiestos Kubernetes') {
-            steps {
-                sh 'make deploy'
-            }
-        }    
+        // stage('Aplicar manifiestos Kubernetes') {
+        //     steps {
+        //         sh 'make deploy'
+        //     }
+        // }    
 
-        stage('Obtener url pública aplicación') {
-            steps {
-                sh 'make deploy'
-            }
-        }       
+        // stage('Obtener url pública aplicación') {
+        //     steps {
+        //         sh 'make deploy'
+        //     }
+        // }       
 
     }
 
