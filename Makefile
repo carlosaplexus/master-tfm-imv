@@ -15,15 +15,15 @@ GENERATOR_IMAGE=$(REGISTRY)/generador:latest
 # ================================
 
 test-unit:
-    @echo "▶ Ejecutando tests unitarios..."
+    @echo "Ejecutando tests unitarios..."
   
 
 test-api:
-    @echo "▶ Ejecutando tests de API..."
+    @echo "Ejecutando tests de API..."
 
 
 test-e2e:
-    @echo "▶ Ejecutando Cypress..."
+    @echo "Ejecutando Cypress..."
 
 
 tests: test-unit test-api test-e2e
