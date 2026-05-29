@@ -6,5 +6,5 @@ metadata:
 data:
   DATABASE_URL: "postgresql://postgres:postgres@postgres:5432/imv"
   K8S_NAMESPACE: "imv-simulacion"
-  GENERATOR_IMAGE: "ghcr.io/TU_USUARIO/generador:latest"
+  GENERATOR_IMAGE: "https://hub.docker.com/r/caedockerid/generador:latest"
   BACKEND_URL: "http://backend:5001/api/patients"

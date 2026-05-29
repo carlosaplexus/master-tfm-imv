@@ -1,9 +1,9 @@
 # ================================
 # CONFIGURACIÓN GENERAL
 # ================================
-REGISTRY=ghcr.io/TU_USUARIO
+REGISTRY=https://hub.docker.com/r/caedockerid
 NAMESPACE=imv-simulacion
-AWS_REGION=eu-west-1
+AWS_REGION=us-east-1
 CLUSTER_NAME=eks-imv
 
 BACKEND_IMAGE=$(REGISTRY)/backend:latest
@@ -17,7 +17,7 @@ GENERATOR_IMAGE=$(REGISTRY)/generador:latest
 test-unit:
     @echo "▶ Ejecutando tests unitarios..."
     pytest backend/tests
-    pytest generador/tests
+    pytest generador/tests    
 
 test-api:
     @echo "▶ Ejecutando tests de API..."

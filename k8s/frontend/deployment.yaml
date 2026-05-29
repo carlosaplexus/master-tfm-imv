@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: frontend
-        image: ghcr.io/TU_USUARIO/frontend:latest
+        image: https://hub.docker.com/r/caedockerid/frontend:latest
         ports:
         - containerPort: 5000
         env:

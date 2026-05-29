@@ -16,7 +16,7 @@ spec:
       serviceAccountName: backend-sa   # ← definido en tu rbac.yaml
       containers:
       - name: backend
-        image: ghcr.io/TU_USUARIO/backend:latest
+        image: https://hub.docker.com/r/caedockerid/backend:latest
         ports:
         - containerPort: 5001
         env:

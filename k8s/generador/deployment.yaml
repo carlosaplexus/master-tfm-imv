@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: generator
-        image: tuimagen/generador:latest
+        image: https://hub.docker.com/r/caedockerid/generador:latest
         env:
         - name: BACKEND_URL
           valueFrom:
