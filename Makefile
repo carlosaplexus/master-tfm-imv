@@ -15,17 +15,17 @@ GENERATOR_IMAGE=$(REGISTRY)/generador:latest
 # ================================
 
 test-unit:
-    @echo "▶ Ejecutando tests unitarios..."
-    pytest backend/tests
-    pytest generador/tests    
+	@echo "▶ Ejecutando tests unitarios..."
+	pytest backend/tests
+	pytest generador/tests    
 
 test-api:
-    @echo "▶ Ejecutando tests de API..."
-    python backend/tests_api/run_tests.py
+	@echo "▶ Ejecutando tests de API..."
+	python backend/tests_api/run_tests.py
 
 test-e2e:
-    @echo "▶ Ejecutando Cypress..."
-    cd frontend && npx cypress run
+	@echo "▶ Ejecutando Cypress..."
+	cd frontend && npx cypress run
 
 tests: test-unit test-api test-e2e
 
@@ -35,17 +35,17 @@ tests: test-unit test-api test-e2e
 # ================================
 
 build:
-    @echo "▶ Construyendo imágenes Docker..."
-    docker build -t $(BACKEND_IMAGE) backend/
-    docker build -t $(FRONTEND_IMAGE) frontend/
-    docker build -t $(GENERATOR_IMAGE) generador/
+	@echo "▶ Construyendo imágenes Docker..."
+	docker build -t $(BACKEND_IMAGE) backend/
+	docker build -t $(FRONTEND_IMAGE) frontend/
+	docker build -t $(GENERATOR_IMAGE) generador/
 
 push:
-    @echo "▶ Subiendo imágenes a GHCR..."
-    echo $$GHCR_TOKEN | docker login ghcr.io -u TU_USUARIO --password-stdin
-    docker push $(BACKEND_IMAGE)
-    docker push $(FRONTEND_IMAGE)
-    docker push $(GENERATOR_IMAGE)
+	@echo "▶ Subiendo imágenes a GHCR..."
+	echo $$GHCR_TOKEN | docker login ghcr.io -u TU_USUARIO --password-stdin
+	docker push $(BACKEND_IMAGE)
+	docker push $(FRONTEND_IMAGE)
+	docker push $(GENERATOR_IMAGE)
 
 
 # ================================
@@ -53,9 +53,9 @@ push:
 # ================================
 
 aws-login:
-    @echo "▶ Autenticando en AWS Academy..."
-    aws sts get-caller-identity
-    aws eks update-kubeconfig --region $(AWS_REGION) --name $(CLUSTER_NAME)
+	@echo "▶ Autenticando en AWS Academy..."
+	aws sts get-caller-identity
+	aws eks update-kubeconfig --region $(AWS_REGION) --name $(CLUSTER_NAME)
 
 
 # ================================
@@ -63,20 +63,20 @@ aws-login:
 # ================================
 
 deploy:
-    @echo "▶ Aplicando manifiestos Kubernetes..."
-    kubectl apply -f k8s/namespace.yaml
-    kubectl apply -f k8s/postgres/
-    kubectl apply -f k8s/backend/
-    kubectl apply -f k8s/frontend/
+	@echo "▶ Aplicando manifiestos Kubernetes..."
+	kubectl apply -f k8s/namespace.yaml
+	kubectl apply -f k8s/postgres/
+	kubectl apply -f k8s/backend/
+	kubectl apply -f k8s/frontend/
 
-    @echo "▶ Esperando a que el LoadBalancer esté listo..."
-    sleep 10
-    kubectl get svc -n $(NAMESPACE)
+	@echo "▶ Esperando a que el LoadBalancer esté listo..."
+	sleep 10
+	kubectl get svc -n $(NAMESPACE)
 
 url:
-    @echo "▶ URL del frontend:"
-    kubectl get svc frontend -n $(NAMESPACE) -o jsonpath='{.status.loadBalancer.ingress[0].hostname}'
-    @echo ""
+	@echo "▶ URL del frontend:"
+	kubectl get svc frontend -n $(NAMESPACE) -o jsonpath='{.status.loadBalancer.ingress[0].hostname}'
+	@echo ""
 
 
 # ================================
@@ -84,12 +84,12 @@ url:
 # ================================
 
 clean:
-    @echo "▶ Eliminando namespace completo..."
-    kubectl delete namespace $(NAMESPACE) --ignore-not-found=true
+	@echo "▶ Eliminando namespace completo..."
+	kubectl delete namespace $(NAMESPACE) --ignore-not-found=true
 
 # ================================
 # FLUJO COMPLETO
 # ================================
 
 all: tests build push aws-login deploy url
-    @echo "✔ Despliegue completo. Abre la URL anterior en tu navegador."
+	@echo "✔ Despliegue completo. Abre la URL anterior en tu navegador."
