@@ -16,7 +16,7 @@ GENERATOR_IMAGE=$(REGISTRY)/generador:latest
 
 test-unit:
     @echo "Ejecutando tests unitarios..."
-  
+
 
 test-api:
     @echo "Ejecutando tests de API..."
