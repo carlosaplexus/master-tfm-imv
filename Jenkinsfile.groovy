@@ -20,6 +20,13 @@ pipeline {
             }
         }
 
+        stage('GNERADOR Tests') {
+            steps {
+                sh 'make test-generador'
+                archiveArtifacts artifacts: "results/*.xml"
+            }
+        }
+
         // stage('E2E Tests') {
         //     steps {
         //         sh 'make test-e2e'
@@ -59,6 +66,12 @@ pipeline {
                     reportFiles: 'index.html',
                     reportName: 'API Tests Report'
                 ])
+
+                publishHTML(target: [
+                    reportDir: 'results/generador',
+                    reportFiles: 'index.html',
+                    reportName: 'Generador Tests Report'
+                ])                
 
                 publishHTML(target: [
                     reportDir: 'results/coverage',
