@@ -13,3 +13,8 @@
 2026-05-30 06:09:33.903 CEST [20684] LOG:  checkpoint completo: escritos 4 búfers (0.0%); escritos 3 búfers SLRU; 0 archivos WAL añadidos, 0 eliminados, 0 reciclados; write=0.006 s, sync=0.007 s, total=0.031 s; archivos sincronizados=4, más largo=0.004 s, promedio=0.002 s; distancia=29 kB, estimación=29 kB; lsn=0/27B5470, lsn de redo=0/27B5470
 2026-05-30 06:09:33.925 CEST [15128] LOG:  el PID 11136 en la petición de cancelación no coincidió con ningún proceso
 2026-05-30 06:09:33.951 CEST [26388] LOG:  el sistema de bases de datos está apagado
+2026-05-30 06:22:09.492 CEST [26504] LOG:  iniciando PostgreSQL 18.3 on x86_64-windows, compiled by msvc-19.44.35223, 64-bit
+2026-05-30 06:22:09.497 CEST [26504] LOG:  escuchando en la dirección IPv6 «::1», port 5432
+2026-05-30 06:22:09.497 CEST [26504] LOG:  escuchando en la dirección IPv4 «127.0.0.1», port 5432
+2026-05-30 06:22:09.567 CEST [5204] LOG:  el sistema de bases de datos fue apagado en 2026-05-30 06:09:33 CEST
+2026-05-30 06:22:09.577 CEST [26504] LOG:  el sistema de bases de datos está listo para aceptar conexiones
