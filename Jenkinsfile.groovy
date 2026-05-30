@@ -102,11 +102,11 @@ pipeline {
             }
         }
 
-        // stage('Autenticacion en AWS Academy') {
-        //     steps {
-        //         sh 'make aws-login'
-        //     }
-        // }
+        stage('Autenticacion en AWS Academy') {
+            steps {
+                sh 'make aws-login'
+            }
+        }
 
         // stage('Aplicar manifiestos Kubernetes') {
         //     steps {
