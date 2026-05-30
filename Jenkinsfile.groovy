@@ -104,6 +104,14 @@ pipeline {
 
         stage('Autenticacion en AWS Academy') {
             steps {
+                withCredentials([file(credentialsId: 'aws-credentials-file', variable: 'AWS_CREDS')]) {
+                sh '''
+                    echo "▶ Configurando credenciales AWS Academy..."
+
+                    mkdir -p ~/.aws
+                    cp $AWS_CREDS ~/.aws/credentials
+                '''
+        }
                 sh 'make aws-login'
             }
         }
