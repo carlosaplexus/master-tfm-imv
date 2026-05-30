@@ -1,7 +1,7 @@
 # ================================
 # CONFIGURACIÓN GENERAL
 # ================================
-REGISTRY=https://hub.docker.com/r/caedockerid
+REGISTRY=caedockerid
 NAMESPACE=imv-simulacion
 AWS_REGION=us-east-1
 CLUSTER_NAME=eks-imv
@@ -81,8 +81,8 @@ build:
 	docker build -t $(GENERATOR_IMAGE) generador/
 
 push:
-	@echo "▶ Subiendo imágenes a GHCR..."
-	echo $$GHCR_TOKEN | docker login ghcr.io -u TU_USUARIO --password-stdin
+	@echo "▶ Subiendo imágenes a DOCKERHUB..."
+	echo $$DOCKERHUB_PSW | docker login -u $$DOCKERHUB_USR --password-stdin
 	docker push $(BACKEND_IMAGE)
 	docker push $(FRONTEND_IMAGE)
 	docker push $(GENERATOR_IMAGE)
