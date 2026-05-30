@@ -20,7 +20,7 @@ pipeline {
             }
         }
 
-        stage('GNERADOR Tests') {
+        stage('GENERADOR Tests') {
             steps {
                 sh 'make test-generador'
                 archiveArtifacts artifacts: "results/*.xml"
@@ -87,17 +87,20 @@ pipeline {
             }
         }
 
-        // stage('Build Docker Images') {
-        //     steps {
-        //         sh 'make build'
-        //     }
-        // }
+        stage('Build Docker Images') {
+            steps {
+                sh 'make build'
+            }
+        }
 
-        // stage('Push Docker Images') {
-        //     steps {
-        //         sh 'make push'
-        //     }
-        // }
+        stage('Push Docker Images') {
+            environment {
+                DOCKERHUB = credentials('dockerhub-credentials')
+            }            
+            steps {
+                sh 'make push'
+            }
+        }
 
         // stage('Autenticacion en AWS Academy') {
         //     steps {
