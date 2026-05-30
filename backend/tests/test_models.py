@@ -1,12 +1,26 @@
 import pytest
 from backend.app import app, db, Patient, Simulation
 
+# EN LOCAL
+# @pytest.fixture
+# def client():
+#     with app.app_context():
+#         db.create_all()
+#         yield app.test_client()
+#         db.session.commit()
+#         db.session.remove()
+#         db.drop_all()
+
 @pytest.fixture
 def client():
+    # Sobrescribir la base de datos ANTES de crear las tablas
+    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///:memory:"
+    app.config["TESTING"] = True
+
     with app.app_context():
+        db.engine.dispose()  # Cierra conexiones previas a PostgreSQL
         db.create_all()
         yield app.test_client()
-        db.session.commit()
         db.session.remove()
         db.drop_all()
 
