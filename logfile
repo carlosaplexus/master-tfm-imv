@@ -1,0 +1,15 @@
+2026-05-30 06:06:29.754 CEST [26388] LOG:  iniciando PostgreSQL 18.3 on x86_64-windows, compiled by msvc-19.44.35223, 64-bit
+2026-05-30 06:06:29.759 CEST [26388] LOG:  escuchando en la dirección IPv6 «::1», port 5432
+2026-05-30 06:06:29.759 CEST [26388] LOG:  escuchando en la dirección IPv4 «127.0.0.1», port 5432
+2026-05-30 06:06:29.840 CEST [19808] LOG:  el sistema de bases de datos fue apagado en 2026-05-27 21:15:24 CEST
+2026-05-30 06:06:29.866 CEST [26388] LOG:  el sistema de bases de datos está listo para aceptar conexiones
+2026-05-30 06:09:33.870 CEST [26388] LOG:  se recibió petición de apagado rápido
+2026-05-30 06:09:33.873 CEST [20684] LOG:  apagando
+2026-05-30 06:09:33.875 CEST [20684] LOG:  empezando checkpoint: shutdown immediate
+2026-05-30 06:09:33.875 CEST [26388] LOG:  abortando transacciones activas
+2026-05-30 06:09:33.881 CEST [11136] FATAL:  terminando la conexión debido a una orden del administrador
+2026-05-30 06:09:33.887 CEST [18620] ERROR:  cancelando la sentencia debido a una petición del usuario
+2026-05-30 06:09:33.897 CEST [26388] LOG:  proceso ayudante «logical replication launcher» (PID 18620) terminó con código de salida 1
+2026-05-30 06:09:33.903 CEST [20684] LOG:  checkpoint completo: escritos 4 búfers (0.0%); escritos 3 búfers SLRU; 0 archivos WAL añadidos, 0 eliminados, 0 reciclados; write=0.006 s, sync=0.007 s, total=0.031 s; archivos sincronizados=4, más largo=0.004 s, promedio=0.002 s; distancia=29 kB, estimación=29 kB; lsn=0/27B5470, lsn de redo=0/27B5470
+2026-05-30 06:09:33.925 CEST [15128] LOG:  el PID 11136 en la petición de cancelación no coincidió con ningún proceso
+2026-05-30 06:09:33.951 CEST [26388] LOG:  el sistema de bases de datos está apagado
