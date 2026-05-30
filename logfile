@@ -20,3 +20,15 @@
 2026-05-30 06:22:09.577 CEST [26504] LOG:  el sistema de bases de datos está listo para aceptar conexiones
 2026-05-30 06:27:09.571 CEST [14368] LOG:  empezando checkpoint: time
 2026-05-30 06:27:18.165 CEST [14368] LOG:  checkpoint completo: escritos 78 búfers (0.5%); escritos 3 búfers SLRU; 0 archivos WAL añadidos, 0 eliminados, 0 reciclados; write=8.510 s, sync=0.064 s, total=8.599 s; archivos sincronizados=62, más largo=0.004 s, promedio=0.002 s; distancia=617 kB, estimación=617 kB; lsn=0/284F900, lsn de redo=0/284F870
+2026-05-30 07:22:09.245 CEST [14368] LOG:  empezando checkpoint: time
+2026-05-30 07:22:15.103 CEST [14368] LOG:  checkpoint completo: escritos 53 búfers (0.3%); escritos 1 búfers SLRU; 0 archivos WAL añadidos, 0 eliminados, 0 reciclados; write=5.786 s, sync=0.049 s, total=5.859 s; archivos sincronizados=45, más largo=0.004 s, promedio=0.002 s; distancia=325 kB, estimación=587 kB; lsn=0/28A0E30, lsn de redo=0/28A0DA0
+2026-05-30 07:28:22.787 CEST [9548] ERROR:  no existe la relación «patients» en carácter 13
+2026-05-30 07:28:22.787 CEST [9548] SENTENCIA:  INSERT INTO patients (device_id, device_victim_seq, edad, genero, lesion_principal, triage_asignado, frecuencia_cardiaca, frecuencia_respiratoria, presion_sistolica, glasgow, estado) VALUES ('dev1', 1, 30, 'Hombre', 'Fractura', 'Verde', 80, 20, 120, 15, 'registrado') RETURNING patients.id, patients.created_at, patients.updated_at
+2026-05-30 07:28:23.491 CEST [27564] ERROR:  no existe la relación «simulations» en carácter 13
+2026-05-30 07:28:23.491 CEST [27564] SENTENCIA:  INSERT INTO simulations (job_name, num_generators, patients_per_generator, status) VALUES ('job-test', 3, 100, 'Running') RETURNING simulations.id, simulations.created_at
+2026-05-30 07:29:19.807 CEST [27060] ERROR:  no existe la relación «patients» en carácter 13
+2026-05-30 07:29:19.807 CEST [27060] SENTENCIA:  INSERT INTO patients (device_id, device_victim_seq, edad, genero, lesion_principal, triage_asignado, frecuencia_cardiaca, frecuencia_respiratoria, presion_sistolica, glasgow, estado) VALUES ('dev1', 1, 30, 'Hombre', 'Fractura', 'Verde', 80, 20, 120, 15, 'registrado') RETURNING patients.id, patients.created_at, patients.updated_at
+2026-05-30 07:29:20.421 CEST [3776] ERROR:  no existe la relación «simulations» en carácter 13
+2026-05-30 07:29:20.421 CEST [3776] SENTENCIA:  INSERT INTO simulations (job_name, num_generators, patients_per_generator, status) VALUES ('job-test', 3, 100, 'Running') RETURNING simulations.id, simulations.created_at
+2026-05-30 07:32:09.129 CEST [14368] LOG:  empezando checkpoint: time
+2026-05-30 07:32:09.370 CEST [14368] LOG:  checkpoint completo: escritos 2 búfers (0.0%); escritos 0 búfers SLRU; 0 archivos WAL añadidos, 0 eliminados, 0 reciclados; write=0.216 s, sync=0.005 s, total=0.242 s; archivos sincronizados=1, más largo=0.005 s, promedio=0.005 s; distancia=14 kB, estimación=530 kB; lsn=0/28A4920, lsn de redo=0/28A48C8
