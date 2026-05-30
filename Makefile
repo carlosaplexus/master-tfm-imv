@@ -14,12 +14,27 @@ GENERATOR_IMAGE=$(REGISTRY)/generador:latest
 # TESTS
 # ================================
 
-test-unit:
-	@echo "▶ Ejecutando tests unitarios..."
-	docker run --name unit-tests --env PYTHONPATH=/app -w /app backend/tests:latest sh -c "mkdir -p results/unit results/api results/coverage && pytest --cov --cov-report=xml:results/coverage.xml --cov-report=html:results/coverage --junit-xml=results/unit_result.xml --html=results/unit/index.html --self-contained-html -m unit || true"
-	docker cp unit-tests:/app/results ./
-	docker rm unit-tests || true
+# test-unit:
+# 	@echo "▶ Ejecutando tests unitarios..."
+# 	docker run --name unit-tests --env PYTHONPATH=/app -w /app backend/tests:latest sh -c "mkdir -p results/unit results/api results/coverage && pytest --cov --cov-report=xml:results/coverage.xml --cov-report=html:results/coverage --junit-xml=results/unit_result.xml --html=results/unit/index.html --self-contained-html -m unit || true"
+# 	docker cp unit-tests:/app/results ./
+# 	docker rm unit-tests || true
 
+
+test-unit:
+	mkdir -p results/unit results/api results/coverage
+	pytest backend/tests \
+		--cov \
+		--cov-report=xml:results/coverage.xml \
+		--cov-report=html:results/coverage \
+		--junitxml=results/unit_result.xml \
+		--html=results/unit/index.html --self-contained-html
+
+test-api:
+	mkdir -p results/unit results/api results/coverage
+	pytest backend/tests_api \
+		--junitxml=results/api_result.xml \
+		--html=results/api/index.html --self-contained-html
 
 # test-api:
 # 	docker stop apiserver || true
@@ -36,11 +51,11 @@ test-unit:
 # 	docker stop api-tests || true
 # 	docker rm --force api-tests || true
 # 	docker network rm imv-test-api || true
-test-api:
-	@echo "▶ Ejecutando tests de API..."
-	docker run --name api-tests --env PYTHONPATH=/app -w /app backend/tests_api:latest sh -c "mkdir -p results/unit results/api results/coverage && pytest backend/tests_api --junit-xml=results/api_result.xml --html=results/api/index.html --self-contained-html || true"
-	docker cp api-tests:/app/results ./
-	docker rm api-tests || true
+# test-api:
+# 	@echo "▶ Ejecutando tests de API..."
+# 	docker run --name api-tests --env PYTHONPATH=/app -w /app backend/tests_api:latest sh -c "mkdir -p results/unit results/api results/coverage && pytest backend/tests_api --junit-xml=results/api_result.xml --html=results/api/index.html --self-contained-html || true"
+# 	docker cp api-tests:/app/results ./
+# 	docker rm api-tests || true
 
 test-e2e:
 	@echo "▶ Ejecutando Cypress..."
