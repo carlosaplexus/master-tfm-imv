@@ -16,12 +16,31 @@ GENERATOR_IMAGE=$(REGISTRY)/generador:latest
 
 test-unit:
 	@echo "▶ Ejecutando tests unitarios..."
-	pytest backend/tests
-	pytest generador/tests    
+	docker run --name unit-tests --env PYTHONPATH=/app -w /app backend/tests:latest sh -c "mkdir -p results/unit results/api results/coverage && pytest --cov --cov-report=xml:results/coverage.xml --cov-report=html:results/coverage --junit-xml=results/unit_result.xml --html=results/unit/index.html --self-contained-html -m unit || true"
+	docker cp unit-tests:/app/results ./
+	docker rm unit-tests || true
 
+
+# test-api:
+# 	docker stop apiserver || true
+# 	docker rm --force apiserver || true
+# 	docker stop api-tests || true
+# 	docker rm --force api-tests || true
+# 	docker network rm imv-test-api || true
+# 	docker network create imv-test-api || true
+# 	docker run -d --network imv-test-api --env PYTHONPATH=/app --name apiserver --env FLASK_APP=app/api.py -p 5001:5001 -w /app imv-app:latest flask run --host=0.0.0.0
+# 	docker run --network imv-test-api --name api-tests --env PYTHONPATH=/app --env BASE_URL=http://apiserver:5001/ -w /pp imv-app:latest pytest --junit-xml=results/api_result.xml --html=results/api/index.html --self-contained-html -m api  || true
+# 	docker cp api-tests:/app/results ./
+# 	docker stop apiserver || true
+# 	docker rm --force apiserver || true
+# 	docker stop api-tests || true
+# 	docker rm --force api-tests || true
+# 	docker network rm imv-test-api || true
 test-api:
 	@echo "▶ Ejecutando tests de API..."
-	python backend/tests_api/run_tests.py
+	docker run --name api-tests --env PYTHONPATH=/app -w /app backend/tests_api:latest sh -c "mkdir -p results/unit results/api results/coverage && pytest backend/tests_api --junit-xml=results/api_result.xml --html=results/api/index.html --self-contained-html || true"
+	docker cp api-tests:/app/results ./
+	docker rm api-tests || true
 
 test-e2e:
 	@echo "▶ Ejecutando Cypress..."
