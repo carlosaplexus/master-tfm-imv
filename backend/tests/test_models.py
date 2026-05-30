@@ -11,22 +11,22 @@ from backend.app import app, db, Patient, Simulation
 #         db.session.remove()
 #         db.drop_all()
 
-@pytest.fixture
-def client():
-    # 1. Cambiar la URI ANTES de tocar la DB
-    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///:memory:"
-    app.config["TESTING"] = True
+# @pytest.fixture
+# def client():
+#     # 1. Cambiar la URI ANTES de tocar la DB
+#     app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///:memory:"
+#     app.config["TESTING"] = True
 
-    # 2. Cerrar conexiones previas a PostgreSQL
-    db.session.remove()
-    db.engine.dispose()
+#     # 2. Cerrar conexiones previas a PostgreSQL
+#     db.session.remove()
+#     db.engine.dispose()
 
-    # 3. Re-crear las tablas en SQLite
-    with app.app_context():
-        db.create_all()
-        yield app.test_client()
-        db.session.remove()
-        db.drop_all()
+#     # 3. Re-crear las tablas en SQLite
+#     with app.app_context():
+#         db.create_all()
+#         yield app.test_client()
+#         db.session.remove()
+#         db.drop_all()
 
 
 def test_patient_model(client):
