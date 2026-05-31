@@ -14,7 +14,7 @@ spec:
         app: postgres
     spec:
       nodeSelector:
-        funcion: app
+        role: app
       containers:
       - name: postgres
         image: postgres:15

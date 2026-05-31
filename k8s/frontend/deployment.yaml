@@ -14,7 +14,7 @@ spec:
         app: frontend
     spec:
       nodeSelector:
-        funcion: app   
+        role: app   
       containers:
       - name: frontend
         image: https://hub.docker.com/r/caedockerid/frontend:latest
