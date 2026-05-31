@@ -25,7 +25,7 @@ export const options = {
       preAllocatedVUs: 50,
       maxVUs: 200,
       stages: [
-        { target: 150, duration: "3m" },
+        { target: 150, duration: "1m" },
         { target: 0, duration: "1m" },
       ],
     },
@@ -34,7 +34,7 @@ export const options = {
       executor: "constant-arrival-rate",
       rate: 80,
       timeUnit: "1m",
-      duration: "10m",
+      duration: "2m",
       preAllocatedVUs: 50,
       maxVUs: 200,
     },
