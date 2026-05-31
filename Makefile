@@ -144,8 +144,18 @@ deploy:
 	@echo "▶ Servicios con grafana desplegado..."	
 	kubectl get svc -n $(NAMESPACE)
 
+	@echo "Workspace actual:"
+	pwd
+	@echo "Contenido del workspace:"
+	ls -R .
+	@echo "Contenido de tests_carga:"
+	ls -l tests_carga/ || echo "tests_carga NO existe"
+
+
 	@echo "▶ Generando ConfigMap automático con scripts K6..."
-	kubectl create configmap k6-scripts --from-file=tests_carga/ -n imv-simulacion --dry-run=client -o yaml | kubectl apply -f -
+#	kubectl create configmap k6-scripts --from-file=tests_carga/ -n imv-simulacion --dry-run=client -o yaml | kubectl apply -f -
+	kubectl create configmap k6-scripts --from-file=$(WORKSPACE)/tests_carga/ -n imv-simulacion --dry-run=client -o yaml | kubectl apply -f -
+
 
 #	@echo "▶ Ejecutando Job de K6 y realizando pruebas de carga..."
 #	PIPELINE_ID=$(BUILD_NUMBER) envsubst < k8s/carga/k6/job-k6.yaml | kubectl apply -f -
