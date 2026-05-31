@@ -182,7 +182,7 @@ urls:
 	kubectl get svc frontend -n $(NAMESPACE) -o jsonpath='{.status.loadBalancer.ingress[0].hostname}'
 	@echo ""
 	@echo "▶ URL de grafana:"
-	kubectl get svc grafana -n $(NAMESPACE) -o jsonpath='{.status.loadBalancer.ingress[0].hostname}'
+	kubectl get svc grafana -n $(NAMESPACE) -o jsonpath='{.status.loadBalancer.ingress[0].hostname}:3000'
 	@echo ""
 
 deploy-job-pruebas1:
