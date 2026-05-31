@@ -9,6 +9,15 @@ spec:
   template:
     spec:
       restartPolicy: Never
+
+      initContainers:
+      - name: wait-for-scripts
+        image: busybox
+        command: ['sh', '-c', 'until [ "$(ls -A /scripts 2>/dev/null)" ]; do echo "Esperando scripts..."; sleep 1; done']
+        volumeMounts:
+        - name: k6-scripts
+          mountPath: /scripts
+
       containers:
       - name: k6
         image: grafana/k6:latest

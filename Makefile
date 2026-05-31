@@ -149,10 +149,11 @@ deploy:
 
 	@echo "▶ Ejecutando Job de K6 y realizando pruebas de carga..."
 #	PIPELINE_ID=$(BUILD_NUMBER) envsubst < k8s/carga/k6/job-k6.yaml | kubectl apply -f -
-	PIPELINE_ID=$(BUILD_NUMBER) envsubst < k8s/carga/k6/job-k6.yaml | kubectl create -f -
+#	PIPELINE_ID=$(BUILD_NUMBER) envsubst < k8s/carga/k6/job-k6.yaml | kubectl create -f -
+	JOB=$(PIPELINE_ID=$(BUILD_NUMBER) envsubst < k8s/carga/k6/job-k6.yaml | kubectl create -f - -o jsonpath='{.metadata.name}')
 
 	@echo "▶ Esperando a que el Job de K6 termine..."
-	JOB=$(kubectl get jobs -n imv-simulacion --sort-by=.metadata.creationTimestamp -o jsonpath='{.items[-1].metadata.name}')
+#	JOB=$(kubectl get jobs -n imv-simulacion --sort-by=.metadata.creationTimestamp -o jsonpath='{.items[-1].metadata.name}')
 	kubectl wait --for=condition=complete job/$JOB -n imv-simulacion --timeout=1h
 
 	@echo "▶ Pruebas de carga completadas."	
