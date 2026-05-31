@@ -24,6 +24,8 @@ spec:
         env:
         - name: PIPELINE_ID
           value: "${PIPELINE_ID}"
+        - name: K6_OUT
+          value: "influxdb=http://influxdb:8086/k6"          
         command: ["sh", "/scripts/run-all.sh"]
         volumeMounts:
         - name: k6-scripts
