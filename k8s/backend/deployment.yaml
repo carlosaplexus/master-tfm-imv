@@ -13,7 +13,6 @@ spec:
       labels:
         app: backend
     spec:
-      serviceAccountName: backend-sa   # ← definido en tu rbac.yaml
       nodeSelector:
         role: app      
       containers:
