@@ -106,6 +106,7 @@ pipeline {
             steps {
                 withCredentials([file(credentialsId: 'aws-credentials-file', variable: 'AWS_CREDS')]) {
                 sh '''
+                    echo " "
                     echo "▶ Configurando credenciales AWS Academy..."
 
                     mkdir -p ~/.aws
