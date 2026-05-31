@@ -125,10 +125,9 @@ pipeline {
 
         stage('Obtener url pública aplicación') {
             steps {
-                sh 'make url'
+                sh 'make urls'
             }
         }       
-
     }
 
     post {

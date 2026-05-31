@@ -18,9 +18,9 @@ MAX_EN_MEMORIA = 100000
 NOMBRE_ARCHIVO = "IMV_sintetico.csv"
 
 #LOCAL
-BACKEND_URL = "http://localhost:5001/api/patients"
+# BACKEND_URL = "http://localhost:5001/api/patients"
 #PRE
-#BACKEND_URL = os.getenv("BACKEND_URL", "http://backend:5001/api/patients")
+BACKEND_URL = os.getenv("BACKEND_URL", "http://backend:5001/api/patients")
 MAX_WORKERS = 50
 
 print(">>> GENERADOR usando BACKEND_URL =", BACKEND_URL)

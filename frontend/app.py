@@ -4,9 +4,9 @@ import os
 app = Flask(__name__)
 
 # LOCAL
-BACKEND_URL = os.getenv("BACKEND_URL", "http://localhost:5001")
+# BACKEND_URL = os.getenv("BACKEND_URL", "http://localhost:5001")
 # CON DOCKER COMPOSE
-# BACKEND_URL = os.getenv("BACKEND_URL", "http://backend:5001")
+BACKEND_URL = os.getenv("BACKEND_URL", "http://backend:5001")
 
 TEMPLATE = """
 <!doctype html>

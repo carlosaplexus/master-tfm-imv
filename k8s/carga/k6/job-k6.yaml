@@ -1,0 +1,33 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  generateName: k6-tests-
+  namespace: imv-simulacion
+spec:
+  backoffLimit: 0
+  ttlSecondsAfterFinished: 3600
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+      - name: k6
+        image: grafana/k6:latest
+        env:
+        - name: PIPELINE_ID
+          value: "${PIPELINE_ID}"
+        command: ["sh", "-c"]
+        args:
+          - |
+            echo "▶ Ejecutando todos los scripts K6..."
+            for f in /scripts/*.js; do
+              name=$(basename "$f" .js)
+              echo "▶ Ejecutando $name"
+              k6 run --tag script_name=$name --tag pipeline_id=$PIPELINE_ID "$f"
+            done
+        volumeMounts:
+        - name: k6-scripts
+          mountPath: /scripts
+      volumes:
+      - name: k6-scripts
+        configMap:
+          name: k6-scripts

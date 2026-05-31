@@ -5,6 +5,7 @@ REGISTRY=caedockerid
 NAMESPACE=imv-simulacion
 AWS_REGION=us-east-1
 CLUSTER_NAME=eks-imv
+SCRIPT_CARGA_MANUAL=imv_escenario1.js
 
 BACKEND_IMAGE=$(REGISTRY)/backend:latest
 FRONTEND_IMAGE=$(REGISTRY)/frontend:latest
@@ -102,23 +103,102 @@ aws-login:
 # DESPLIEGUE KUBERNETES
 # ================================
 
+# deploy:
+# 	@echo "▶ Aplicando manifiestos Kubernetes..."
+# 	kubectl apply -f k8s/namespace.yaml
+# 	kubectl apply -f k8s/postgres/
+# 	@echo "▶ Esperando a que el Postgres esté listo..."
+# 	sleep 20
+# 	kubectl apply -f k8s/backend/
+# 	kubectl apply -f k8s/frontend/
+
 deploy:
 	@echo "▶ Aplicando manifiestos Kubernetes..."
 	kubectl apply -f k8s/namespace.yaml
 	kubectl apply -f k8s/postgres/
+
 	@echo "▶ Esperando a que el Postgres esté listo..."
 	sleep 20
+
+	@echo "▶ Desplegando backend..."
 	kubectl apply -f k8s/backend/
+
+	@echo "▶ Desplegando frontend..."
 	kubectl apply -f k8s/frontend/
 
-	@echo "▶ Esperando a que el LoadBalancer esté listo..."
+	@echo "▶ Esperando a que el LoadBalancer frontend esté listo..."
 	sleep 10
+
+	@echo "▶ Servicios aplicacion desplegados..."
 	kubectl get svc -n $(NAMESPACE)
 
-url:
+	@echo "▶ Desplegando InfluxDB..."
+	kubectl apply -f k8s/carga/influxdb/
+
+	@echo "▶ Desplegando Grafana..."
+	kubectl apply -f k8s/carga/grafana/
+
+	@echo "▶ Esperando a que el LoadBalancer grafana esté listo..."
+	sleep 10
+
+	@echo "▶ Servicios con grafana desplegado..."	
+	kubectl get svc -n $(NAMESPACE)
+
+	@echo "▶ Generando ConfigMap automático con scripts K6..."
+	kubectl create configmap k6-scripts --from-file=tests_carga/ -n imv-simulacion --dry-run=client -o yaml | kubectl apply -f -
+
+	@echo "▶ Ejecutando Job de K6 y realizando pruebas de carga..."
+	PIPELINE_ID=$(BUILD_NUMBER) envsubst < k8s/carga/k6/job-k6.yaml | kubectl apply -f -
+
+	@echo "▶ Esperando a que el Job de K6 termine..."
+	JOB=$(kubectl get jobs -n imv-simulacion -o jsonpath='{.items[-1].metadata.name}')
+	kubectl wait --for=condition=complete job/$JOB -n imv-simulacion --timeout=1h
+
+	@echo "▶ Pruebas de carga completadas."	
+
+	@echo "▶ Servicios desplegados y pruebas ejecutadas"
+	kubectl get svc -n $(NAMESPACE)
+
+urls:
 	@echo "▶ URL del frontend:"
 	kubectl get svc frontend -n $(NAMESPACE) -o jsonpath='{.status.loadBalancer.ingress[0].hostname}'
 	@echo ""
+	@echo "▶ URL de grafana:"
+	kubectl get svc grafana -n $(NAMESPACE) -o jsonpath='{.status.loadBalancer.ingress[0].hostname}'
+	@echo ""
+
+deploy-job-pruebas1:
+	kubectl apply -f k6-job-manual.yaml
+
+deploy-job-pruebas2:
+	kubectl create job k6-manual --image=grafana/k6 -- sh -c "k6 run /scripts/mi_script.js"
+
+deploy-manual-independiente:
+	kubectl run k6-manual -n imv-simulacion --image=grafana/k6:latest --restart=Never --command -- sh -c "k6 run /scripts/$(SCRIPT_CARGA_MANUAL)" --overrides='
+	{
+	"spec": {
+		"volumes": [
+		{
+			"name": "k6-scripts",
+			"configMap": { "name": "k6-scripts" }
+		}
+		],
+		"containers": [
+		{
+			"name": "k6",
+			"image": "grafana/k6:latest",
+			"command": ["sh", "-c"],
+			"args": ["k6 run /scripts/imv_escenarioX.js"],
+			"volumeMounts": [
+			{
+				"name": "k6-scripts",
+				"mountPath": "/scripts"
+			}
+			]
+		}
+		]
+	}
+	}'
 
 
 # ================================

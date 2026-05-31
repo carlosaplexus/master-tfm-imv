@@ -1,0 +1,87 @@
+import http from "k6/http";
+import { check, sleep } from "k6";
+
+export const options = {
+  tags: {
+    imv: "Escenario_IMV_1"
+  },
+  scenarios: {
+    oleada1_explosion: {
+      executor: "ramping-arrival-rate",
+      startRate: 0,
+      timeUnit: "1s",
+      preAllocatedVUs: 50,
+      maxVUs: 300,
+      stages: [
+        { target: 300, duration: "1m" },
+        { target: 0, duration: "30s" },
+      ],
+    },
+
+    oleada2_secondary: {
+      executor: "ramping-arrival-rate",
+      startRate: 0,
+      timeUnit: "1s",
+      preAllocatedVUs: 50,
+      maxVUs: 200,
+      stages: [
+        { target: 150, duration: "3m" },
+        { target: 0, duration: "1m" },
+      ],
+    },
+
+    oleada3_mild: {
+      executor: "constant-arrival-rate",
+      rate: 80,
+      timeUnit: "1m",
+      duration: "10m",
+      preAllocatedVUs: 50,
+      maxVUs: 200,
+    },
+  },
+};
+
+function randomInt(min, max) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+export default function () {
+  const patient = {
+    device_id: `dev-${__VU}-${Date.now()}`,       // único por VU con timestamp
+    device_victim_seq: (__VU * 1000000) + __ITER,  // único por iteración
+    //device_victim_seq: __ITER,
+
+    Edad: randomInt(1, 90),
+    Genero: Math.random() > 0.5 ? "M" : "F",
+
+    LesionPrincipal: ["Trauma", "Quemadura", "Hemorragia", "Fractura"][randomInt(0, 3)],
+    TriageAsignado: ["rojo", "amarillo", "verde", "negro"][randomInt(0, 3)],
+
+    FrecuenciaCardiaca: randomInt(40, 160),
+    FrecuenciaRespiratoria: randomInt(8, 40),
+    PresionSistolica: randomInt(60, 180),
+    Glasgow: randomInt(3, 15),
+  };
+
+  const headers = { "Content-Type": "application/json" };
+
+  const res = http.post(
+    "http://backend:5001/api/patients",
+    JSON.stringify(patient),
+    { headers }
+  );
+
+  // const res = http.post(
+  //   "http://localhost:5001/api/patients",
+  //   JSON.stringify(patient),
+  //   { headers }
+  // );
+
+  check(res, {
+    "status 201": (r) => r.status === 201,
+  });
+
+  sleep(1);
+}
+
+
