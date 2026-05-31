@@ -173,8 +173,14 @@ deploy:
 # 	echo "▶ Esperando a que el Job termine..."; \
 # 	kubectl wait --for=condition=complete job/$$JOB_NAME -n imv-simulacion --timeout=1h
 
+# 	@echo "▶ Ejecutando Job de K6 y realizando pruebas de carga..."
+# 	@JOB_NAME=$$(sh -c 'PIPELINE_ID=$(BUILD_NUMBER) envsubst < k8s/carga/k6/job-k6.yaml' | kubectl create -f - -o jsonpath='{.metadata.name}'); \
+# 	echo "Job creado: $$JOB_NAME"; \
+# 	echo "▶ Esperando a que el Job termine..."; \
+# 	kubectl wait --for=condition=complete job/$$JOB_NAME -n imv-simulacion --timeout=1h
+
 	@echo "▶ Ejecutando Job de K6 y realizando pruebas de carga..."
-	@JOB_NAME=$$(sh -c 'PIPELINE_ID=$(BUILD_NUMBER) envsubst < k8s/carga/k6/job-k6.yaml' | kubectl create -f - -o jsonpath='{.metadata.name}'); \
+	@JOB_NAME=$$(PIPELINE_ID=$(BUILD_NUMBER) envsubst < k8s/carga/k6/job-k6.yaml | kubectl create -f - -o jsonpath='{.metadata.name}'); \
 	echo "Job creado: $$JOB_NAME"; \
 	echo "▶ Esperando a que el Job termine..."; \
 	kubectl wait --for=condition=complete job/$$JOB_NAME -n imv-simulacion --timeout=1h
