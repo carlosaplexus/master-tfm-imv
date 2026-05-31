@@ -13,6 +13,8 @@ spec:
       labels:
         app: generator
     spec:
+      nodeSelector:
+        funcion: app  
       containers:
       - name: generator
         image: https://hub.docker.com/r/caedockerid/generador:latest

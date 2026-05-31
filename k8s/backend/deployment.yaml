@@ -14,6 +14,8 @@ spec:
         app: backend
     spec:
       serviceAccountName: backend-sa   # ← definido en tu rbac.yaml
+      nodeSelector:
+        funcion: app      
       containers:
       - name: backend
         image: https://hub.docker.com/r/caedockerid/backend:latest
