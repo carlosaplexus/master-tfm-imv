@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: backend
-        image: https://hub.docker.com/r/caedockerid/backend:latest
+        image: caedockerid/backend:latest
         ports:
         - containerPort: 5001
         env:
