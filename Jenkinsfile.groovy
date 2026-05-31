@@ -117,17 +117,17 @@ pipeline {
             }
         }
 
-        // stage('Aplicar manifiestos Kubernetes') {
-        //     steps {
-        //         sh 'make deploy'
-        //     }
-        // }    
+        stage('Aplicar manifiestos Kubernetes') {
+            steps {
+                sh 'make deploy'
+            }
+        }    
 
-        // stage('Obtener url pública aplicación') {
-        //     steps {
-        //         sh 'make deploy'
-        //     }
-        // }       
+        stage('Obtener url pública aplicación') {
+            steps {
+                sh 'make url'
+            }
+        }       
 
     }
 

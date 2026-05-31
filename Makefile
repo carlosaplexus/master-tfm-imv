@@ -106,6 +106,8 @@ deploy:
 	@echo "▶ Aplicando manifiestos Kubernetes..."
 	kubectl apply -f k8s/namespace.yaml
 	kubectl apply -f k8s/postgres/
+	@echo "▶ Esperando a que el Postgres esté listo..."
+	sleep 20
 	kubectl apply -f k8s/backend/
 	kubectl apply -f k8s/frontend/
 
