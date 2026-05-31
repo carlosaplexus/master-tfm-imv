@@ -13,8 +13,6 @@ spec:
       labels:
         app: backend
     spec:
-      nodeSelector:
-        role: app      
       containers:
       - name: backend
         image: https://hub.docker.com/r/caedockerid/backend:latest

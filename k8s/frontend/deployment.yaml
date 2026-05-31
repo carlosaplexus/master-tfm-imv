@@ -13,8 +13,6 @@ spec:
       labels:
         app: frontend
     spec:
-      nodeSelector:
-        role: app   
       containers:
       - name: frontend
         image: https://hub.docker.com/r/caedockerid/frontend:latest
