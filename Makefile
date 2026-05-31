@@ -151,8 +151,8 @@ deploy:
 	@echo "Contenido de tests_carga:"
 	ls -l tests_carga/ || echo "tests_carga NO existe"
 
-
 	@echo "▶ Generando ConfigMap automático con scripts K6..."
+	@chmod +x $(WORKSPACE)/tests_carga/run-all.sh
 #	kubectl create configmap k6-scripts --from-file=tests_carga/ -n imv-simulacion --dry-run=client -o yaml | kubectl apply -f -
 	kubectl create configmap k6-scripts --from-file=$(WORKSPACE)/tests_carga/ -n imv-simulacion --dry-run=client -o yaml | kubectl apply -f -
 

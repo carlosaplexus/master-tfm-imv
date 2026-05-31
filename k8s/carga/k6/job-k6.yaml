@@ -24,15 +24,7 @@ spec:
         env:
         - name: PIPELINE_ID
           value: "${PIPELINE_ID}"
-        command: ["sh", "-c"]
-        args:
-          - |
-            echo "▶ Ejecutando todos los scripts K6..."
-            for f in /scripts/*.js; do
-              name=$$(basename "$$$$f" .js)
-              echo "▶ Ejecutando $$$$name"
-              k6 run --tag script_name=$$$$name --tag pipeline_id=$${PIPELINE_ID} "$$$$f"
-            done
+        command: ["sh", "/scripts/run-all.sh"]
         volumeMounts:
         - name: k6-scripts
           mountPath: /scripts
