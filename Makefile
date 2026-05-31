@@ -147,14 +147,20 @@ deploy:
 	@echo "▶ Generando ConfigMap automático con scripts K6..."
 	kubectl create configmap k6-scripts --from-file=tests_carga/ -n imv-simulacion --dry-run=client -o yaml | kubectl apply -f -
 
-	@echo "▶ Ejecutando Job de K6 y realizando pruebas de carga..."
+#	@echo "▶ Ejecutando Job de K6 y realizando pruebas de carga..."
 #	PIPELINE_ID=$(BUILD_NUMBER) envsubst < k8s/carga/k6/job-k6.yaml | kubectl apply -f -
 #	PIPELINE_ID=$(BUILD_NUMBER) envsubst < k8s/carga/k6/job-k6.yaml | kubectl create -f -
 #	JOB=$(PIPELINE_ID=$(BUILD_NUMBER) envsubst < k8s/carga/k6/job-k6.yaml | kubectl create -f - -o jsonpath='{.metadata.name}')
-	JOB_NAME=$$(PIPELINE_ID=$(BUILD_NUMBER) envsubst < k8s/carga/k6/job-k6.yaml | kubectl create -f - -o jsonpath='{.metadata.name}')
+#	JOB_NAME=$$(PIPELINE_ID=$(BUILD_NUMBER) envsubst < k8s/carga/k6/job-k6.yaml | kubectl create -f - -o jsonpath='{.metadata.name}')
 
-	@echo "▶ Esperando a que el Job de K6 termine..."
+#	@echo "▶ Esperando a que el Job de K6 termine..."
 #	JOB=$(kubectl get jobs -n imv-simulacion --sort-by=.metadata.creationTimestamp -o jsonpath='{.items[-1].metadata.name}')
+#	kubectl wait --for=condition=complete job/$$JOB_NAME -n imv-simulacion --timeout=1h
+
+	@echo "▶ Ejecutando Job de K6 y realizando pruebas de carga..."
+	@JOB_NAME=$$(PIPELINE_ID=$(BUILD_NUMBER) envsubst < k8s/carga/k6/job-k6.yaml | kubectl create -f - -o jsonpath='{.metadata.name}'); \
+	echo "Job creado: $$JOB_NAME"; \
+	echo "▶ Esperando a que el Job termine..."; \
 	kubectl wait --for=condition=complete job/$$JOB_NAME -n imv-simulacion --timeout=1h
 
 	@echo "▶ Pruebas de carga completadas."	
