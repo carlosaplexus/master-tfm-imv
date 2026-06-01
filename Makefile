@@ -140,12 +140,12 @@ deploy:
 	kubectl label configmap grafana-dashboard-k6 grafana_dashboard="1" -n imv-simulacion
 
 	@echo "Autorizando RBAC a sidecar grafana..."
-	kubectl apply -f grafana-sa.yaml
-	kubectl apply -f grafana-role.yaml
-	kubectl apply -f grafana-rolebinding.yaml
+	kubectl apply -f k8s/carga/grafana/grafana-sa.yaml
+	kubectl apply -f k8s/carga/grafana/grafana-role.yaml
+	kubectl apply -f k8s/carga/grafana/grafana-rolebinding.yaml
 
 	@echo "▶ Desplegando Grafana..."
-	kubectl apply -f k8s/carga/grafana/
+	kubectl apply -f k8s/carga/grafana/grafana.yaml
 
 	@echo "▶ Esperando a que el LoadBalancer grafana esté listo..."
 	sleep 10
