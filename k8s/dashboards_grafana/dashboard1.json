@@ -1,0 +1,104 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": "-- Grafana --",
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "gnetId": null,
+  "graphTooltip": 1,
+  "panels": [
+    {
+      "title": "Requests per second (http_reqs)",
+      "type": "graph",
+      "datasource": "InfluxDB",
+      "targets": [
+        {
+          "measurement": "http_reqs",
+          "groupBy": [
+            { "type": "time", "params": ["10s"] }
+          ],
+          "select": [
+            [
+              { "type": "field", "params": ["value"] },
+              { "type": "sum", "params": [] }
+            ]
+          ],
+          "resultFormat": "time_series"
+        }
+      ]
+    },
+    {
+      "title": "Latency (http_req_duration)",
+      "type": "graph",
+      "datasource": "InfluxDB",
+      "targets": [
+        {
+          "measurement": "http_req_duration",
+          "groupBy": [
+            { "type": "time", "params": ["10s"] }
+          ],
+          "select": [
+            [
+              { "type": "field", "params": ["value"] },
+              { "type": "mean", "params": [] }
+            ]
+          ],
+          "resultFormat": "time_series"
+        }
+      ]
+    },
+    {
+      "title": "Virtual Users (vus)",
+      "type": "graph",
+      "datasource": "InfluxDB",
+      "targets": [
+        {
+          "measurement": "vus",
+          "groupBy": [
+            { "type": "time", "params": ["10s"] }
+          ],
+          "select": [
+            [
+              { "type": "field", "params": ["value"] },
+              { "type": "max", "params": [] }
+            ]
+          ],
+          "resultFormat": "time_series"
+        }
+      ]
+    },
+    {
+      "title": "Checks (success/fail)",
+      "type": "graph",
+      "datasource": "InfluxDB",
+      "targets": [
+        {
+          "measurement": "checks",
+          "groupBy": [
+            { "type": "time", "params": ["10s"] },
+            { "type": "tag", "params": ["check"] }
+          ],
+          "select": [
+            [
+              { "type": "field", "params": ["value"] },
+              { "type": "sum", "params": [] }
+            ]
+          ],
+          "resultFormat": "time_series"
+        }
+      ]
+    }
+  ],
+  "schemaVersion": 26,
+  "title": "K6 Load Testing Dashboard",
+  "version": 1
+}
