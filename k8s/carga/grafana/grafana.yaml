@@ -22,6 +22,8 @@ spec:
         env:
         - name: GF_SECURITY_ADMIN_PASSWORD
           value: admin
+        - name: GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH
+          value: /var/lib/grafana/dashboards/k6-dashboard1.json
         volumeMounts:
         - name: grafana-dashboards
           mountPath: /var/lib/grafana/dashboards
@@ -29,7 +31,6 @@ spec:
           mountPath: /etc/grafana/provisioning/dashboards
         - name: grafana-datasource
           mountPath: /etc/grafana/provisioning/datasources
-
 
       - name: grafana-sc-dashboard
         image: kiwigrid/k8s-sidecar:1.15.0
