@@ -139,6 +139,9 @@ deploy:
 	kubectl create configmap grafana-dashboard-k6 --from-file=k8s/carga/grafana/json/k6-dashboard1.json -n imv-simulacion
 	kubectl label configmap grafana-dashboard-k6 grafana_dashboard="1" -n imv-simulacion
 
+	@echo "Creando datasource de InfluxDB para Grafana..."
+	kubectl apply -f k8s/carga/grafana/grafana-datasource.yaml
+
 	@echo "Autorizando RBAC a sidecar grafana..."
 	kubectl apply -f k8s/carga/grafana/grafana-sa.yaml
 	kubectl apply -f k8s/carga/grafana/grafana-role.yaml
