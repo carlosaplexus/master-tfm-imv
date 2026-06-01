@@ -3,7 +3,7 @@
   "title": "K6 – IMV Performance (por escenario)",
   "timezone": "browser",
   "schemaVersion": 38,
-  "version": 1,
+  "version": 2,
   "editable": true,
   "style": "dark",
   "tags": ["k6", "performance", "imv"],
@@ -11,485 +11,291 @@
     "from": "now-30m",
     "to": "now"
   },
-  "timepicker": {
-    "refresh_intervals": ["5s", "10s", "30s", "1m", "5m"],
-    "time_options": ["5m", "15m", "30m", "1h", "3h", "6h", "12h", "24h"]
-  },
+
   "templating": {
     "list": [
       {
         "name": "pipeline_id",
         "label": "Pipeline",
         "type": "query",
-        "datasource": {
-          "type": "influxdb",
-          "uid": "influxdb-k6"
-        },
+        "datasource": { "type": "influxdb", "uid": "influxdb-k6" },
         "query": "SHOW TAG VALUES FROM \"http_reqs\" WITH KEY = \"pipeline_id\"",
         "includeAll": true,
-        "multi": false,
         "refresh": 1,
-        "current": {
-          "text": "All",
-          "value": "$__all"
-        }
+        "current": { "text": "All", "value": "$__all" }
       },
       {
         "name": "script_name",
         "label": "Script",
         "type": "query",
-        "datasource": {
-          "type": "influxdb",
-          "uid": "influxdb-k6"
-        },
+        "datasource": { "type": "influxdb", "uid": "influxdb-k6" },
         "query": "SHOW TAG VALUES FROM \"http_reqs\" WITH KEY = \"script_name\"",
         "includeAll": true,
-        "multi": false,
         "refresh": 1,
-        "current": {
-          "text": "All",
-          "value": "$__all"
-        }
+        "current": { "text": "All", "value": "$__all" }
       },
+
       {
         "name": "imv",
-        "label": "IMV Escenario",
-        "type": "query",
-        "datasource": {
-          "type": "influxdb",
-          "uid": "influxdb-k6"
-        },
-        "query": "SHOW TAG VALUES FROM \"http_reqs\" WITH KEY = \"imv\"",
-        "includeAll": true,
-        "multi": false,
-        "refresh": 1,
+        "label": "Escenario IMV",
+        "type": "constant",
+        "query": "Escenario IMV",
         "current": {
-          "text": "All",
-          "value": "$__all"
+          "text": "Escenario IMV",
+          "value": "Escenario IMV"
         }
       },
+
       {
         "name": "scenario",
         "label": "Oleada (scenario)",
         "type": "query",
-        "datasource": {
-          "type": "influxdb",
-          "uid": "influxdb-k6"
-        },
+        "datasource": { "type": "influxdb", "uid": "influxdb-k6" },
         "query": "SHOW TAG VALUES FROM \"http_reqs\" WITH KEY = \"scenario\"",
         "includeAll": false,
-        "multi": false,
         "refresh": 1,
-        "current": {
-          "text": "oleada1_explosion",
-          "value": "oleada1_explosion"
-        }
+        "current": { "text": "oleada1_explosion", "value": "oleada1_explosion" }
       }
     ]
   },
+
   "panels": [
+
     {
       "id": 1,
       "type": "row",
       "title": "Resumen global",
-      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 0 },
-      "collapsed": false,
-      "panels": []
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 0 }
     },
+
     {
       "id": 2,
       "type": "stat",
       "title": "P95 Latency (ms)",
       "gridPos": { "h": 4, "w": 6, "x": 0, "y": 1 },
-      "datasource": {
-        "type": "influxdb",
-        "uid": "influxdb-k6"
-      },
+      "datasource": { "type": "influxdb", "uid": "influxdb-k6" },
       "targets": [
         {
-          "query": "SELECT percentile(\"value\",95) FROM \"http_req_duration\" WHERE $timeFilter AND (\"pipeline_id\" =~ /^$pipeline_id$/ OR '$pipeline_id' = '$__all') AND (\"script_name\" =~ /^$script_name$/ OR '$script_name' = '$__all') AND (\"imv\" =~ /^$imv$/ OR '$imv' = '$__all')",
+          "query": "SELECT percentile(\"value\",95) FROM \"http_req_duration\" WHERE $timeFilter AND (\"pipeline_id\" =~ /^$pipeline_id$/ OR '$pipeline_id' = '$__all') AND (\"script_name\" =~ /^$script_name$/ OR '$script_name' = '$__all')",
           "refId": "A"
         }
       ],
-      "options": {
-        "reduceOptions": {
-          "calcs": ["lastNotNull"],
-          "fields": "",
-          "values": false
-        },
-        "colorMode": "value",
-        "graphMode": "none",
-        "justifyMode": "auto",
-        "orientation": "horizontal"
-      },
       "fieldConfig": {
         "defaults": {
           "unit": "ms",
-          "decimals": 0,
-          "color": {
-            "mode": "thresholds"
-          },
           "thresholds": {
             "mode": "absolute",
             "steps": [
-              { "color": "green", "value": null },
+              { "color": "green" },
               { "color": "yellow", "value": 200 },
               { "color": "red", "value": 400 }
             ]
           }
-        },
-        "overrides": []
+        }
       }
     },
+
     {
       "id": 3,
       "type": "stat",
       "title": "P99 Latency (ms)",
       "gridPos": { "h": 4, "w": 6, "x": 6, "y": 1 },
-      "datasource": {
-        "type": "influxdb",
-        "uid": "influxdb-k6"
-      },
+      "datasource": { "type": "influxdb", "uid": "influxdb-k6" },
       "targets": [
         {
-          "query": "SELECT percentile(\"value\",99) FROM \"http_req_duration\" WHERE $timeFilter AND (\"pipeline_id\" =~ /^$pipeline_id$/ OR '$pipeline_id' = '$__all') AND (\"script_name\" =~ /^$script_name$/ OR '$script_name' = '$__all') AND (\"imv\" =~ /^$imv$/ OR '$imv' = '$__all')",
+          "query": "SELECT percentile(\"value\",99) FROM \"http_req_duration\" WHERE $timeFilter AND (\"pipeline_id\" =~ /^$pipeline_id$/ OR '$pipeline_id' = '$__all') AND (\"script_name\" =~ /^$script_name$/ OR '$script_name' = '$__all')",
           "refId": "A"
         }
       ],
-      "options": {
-        "reduceOptions": {
-          "calcs": ["lastNotNull"],
-          "fields": "",
-          "values": false
-        },
-        "colorMode": "value",
-        "graphMode": "none",
-        "justifyMode": "auto",
-        "orientation": "horizontal"
-      },
       "fieldConfig": {
         "defaults": {
           "unit": "ms",
-          "decimals": 0,
-          "color": {
-            "mode": "thresholds"
-          },
           "thresholds": {
             "mode": "absolute",
             "steps": [
-              { "color": "green", "value": null },
+              { "color": "green" },
               { "color": "yellow", "value": 300 },
               { "color": "red", "value": 600 }
             ]
           }
-        },
-        "overrides": []
+        }
       }
     },
+
     {
       "id": 4,
       "type": "stat",
       "title": "Throughput (req/s)",
       "gridPos": { "h": 4, "w": 6, "x": 12, "y": 1 },
-      "datasource": {
-        "type": "influxdb",
-        "uid": "influxdb-k6"
-      },
+      "datasource": { "type": "influxdb", "uid": "influxdb-k6" },
       "targets": [
         {
-          "query": "SELECT sum(\"value\") / $__interval_s FROM \"http_reqs\" WHERE $timeFilter AND (\"pipeline_id\" =~ /^$pipeline_id$/ OR '$pipeline_id' = '$__all') AND (\"script_name\" =~ /^$script_name$/ OR '$script_name' = '$__all') AND (\"imv\" =~ /^$imv$/ OR '$imv' = '$__all') GROUP BY time($__interval)",
+          "query": "SELECT sum(\"value\") / $__interval_s FROM \"http_reqs\" WHERE $timeFilter AND (\"pipeline_id\" =~ /^$pipeline_id$/ OR '$pipeline_id' = '$__all') AND (\"script_name\" =~ /^$script_name$/ OR '$script_name' = '$__all') GROUP BY time($__interval)",
           "refId": "A"
         }
       ],
-      "options": {
-        "reduceOptions": {
-          "calcs": ["lastNotNull"],
-          "fields": "",
-          "values": false
-        },
-        "colorMode": "value",
-        "graphMode": "none",
-        "justifyMode": "auto",
-        "orientation": "horizontal"
-      },
       "fieldConfig": {
         "defaults": {
           "unit": "req/s",
-          "decimals": 0,
-          "color": {
-            "mode": "thresholds"
-          },
           "thresholds": {
             "mode": "absolute",
             "steps": [
-              { "color": "red", "value": null },
+              { "color": "red" },
               { "color": "yellow", "value": 500 },
               { "color": "green", "value": 1000 }
             ]
           }
-        },
-        "overrides": []
+        }
       }
     },
+
     {
       "id": 5,
       "type": "stat",
       "title": "Errores (%)",
       "gridPos": { "h": 4, "w": 6, "x": 18, "y": 1 },
-      "datasource": {
-        "type": "influxdb",
-        "uid": "influxdb-k6"
-      },
+      "datasource": { "type": "influxdb", "uid": "influxdb-k6" },
       "targets": [
         {
-          "query": "SELECT 100 * (sum(\"value\") / (SELECT sum(\"value\") FROM \"http_reqs\" WHERE $timeFilter AND (\"pipeline_id\" =~ /^$pipeline_id$/ OR '$pipeline_id' = '$__all') AND (\"script_name\" =~ /^$script_name$/ OR '$script_name' = '$__all') AND (\"imv\" =~ /^$imv$/ OR '$imv' = '$__all'))) FROM \"http_req_failed\" WHERE $timeFilter AND (\"pipeline_id\" =~ /^$pipeline_id$/ OR '$pipeline_id' = '$__all') AND (\"script_name\" =~ /^$script_name$/ OR '$script_name' = '$__all') AND (\"imv\" =~ /^$imv$/ OR '$imv' = '$__all')",
+          "query": "SELECT 100 * (sum(\"value\") / (SELECT sum(\"value\") FROM \"http_reqs\" WHERE $timeFilter AND (\"pipeline_id\" =~ /^$pipeline_id$/ OR '$pipeline_id' = '$__all') AND (\"script_name\" =~ /^$script_name$/ OR '$script_name' = '$__all'))) FROM \"http_req_failed\" WHERE $timeFilter AND (\"pipeline_id\" =~ /^$pipeline_id$/ OR '$pipeline_id' = '$__all') AND (\"script_name\" =~ /^$script_name$/ OR '$script_name' = '$__all')",
           "refId": "A"
         }
       ],
-      "options": {
-        "reduceOptions": {
-          "calcs": ["lastNotNull"],
-          "fields": "",
-          "values": false
-        },
-        "colorMode": "value",
-        "graphMode": "none",
-        "justifyMode": "auto",
-        "orientation": "horizontal"
-      },
       "fieldConfig": {
         "defaults": {
           "unit": "percent",
-          "decimals": 2,
-          "color": {
-            "mode": "thresholds"
-          },
           "thresholds": {
             "mode": "absolute",
             "steps": [
-              { "color": "green", "value": null },
+              { "color": "green" },
               { "color": "yellow", "value": 1 },
               { "color": "red", "value": 5 }
             ]
           }
-        },
-        "overrides": []
+        }
       }
     },
+
     {
       "id": 6,
       "type": "row",
       "title": "Línea temporal global",
-      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 5 },
-      "collapsed": false,
-      "panels": []
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 5 }
     },
+
     {
       "id": 7,
       "type": "timeseries",
-      "title": "Latencia P95 / Throughput / VUs / Errores",
+      "title": "Latencia / Throughput / VUs / Errores",
       "gridPos": { "h": 10, "w": 24, "x": 0, "y": 6 },
-      "datasource": {
-        "type": "influxdb",
-        "uid": "influxdb-k6"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": { "mode": "palette-classic" },
-          "custom": {
-            "drawStyle": "line",
-            "lineInterpolation": "smooth",
-            "lineWidth": 2,
-            "fillOpacity": 10,
-            "showPoints": "never"
-          }
-        },
-        "overrides": []
-      },
-      "options": {
-        "legend": {
-          "displayMode": "table",
-          "placement": "bottom"
-        },
-        "tooltip": {
-          "mode": "multi"
-        }
-      },
+      "datasource": { "type": "influxdb", "uid": "influxdb-k6" },
       "targets": [
         {
           "refId": "A",
-          "query": "SELECT percentile(\"value\",95) FROM \"http_req_duration\" WHERE $timeFilter AND (\"pipeline_id\" =~ /^$pipeline_id$/ OR '$pipeline_id' = '$__all') AND (\"script_name\" =~ /^$script_name$/ OR '$script_name' = '$__all') AND (\"imv\" =~ /^$imv$/ OR '$imv' = '$__all') GROUP BY time($__interval) fill(null)",
-          "alias": "P95 Latency"
+          "alias": "P95 Latency",
+          "query": "SELECT percentile(\"value\",95) FROM \"http_req_duration\" WHERE $timeFilter AND (\"pipeline_id\" =~ /^$pipeline_id$/ OR '$pipeline_id' = '$__all') AND (\"script_name\" =~ /^$script_name$/ OR '$script_name' = '$__all') GROUP BY time($__interval)"
         },
         {
           "refId": "B",
-          "query": "SELECT sum(\"value\") / $__interval_s FROM \"http_reqs\" WHERE $timeFilter AND (\"pipeline_id\" =~ /^$pipeline_id$/ OR '$pipeline_id' = '$__all') AND (\"script_name\" =~ /^$script_name$/ OR '$script_name' = '$__all') AND (\"imv\" =~ /^$imv$/ OR '$imv' = '$__all') GROUP BY time($__interval) fill(null)",
-          "alias": "Throughput (req/s)"
+          "alias": "Throughput",
+          "query": "SELECT sum(\"value\") / $__interval_s FROM \"http_reqs\" WHERE $timeFilter AND (\"pipeline_id\" =~ /^$pipeline_id$/ OR '$pipeline_id' = '$__all') AND (\"script_name\" =~ /^$script_name$/ OR '$script_name' = '$__all') GROUP BY time($__interval)"
         },
         {
           "refId": "C",
-          "query": "SELECT max(\"value\") FROM \"vus\" WHERE $timeFilter AND (\"pipeline_id\" =~ /^$pipeline_id$/ OR '$pipeline_id' = '$__all') AND (\"script_name\" =~ /^$script_name$/ OR '$script_name' = '$__all') AND (\"imv\" =~ /^$imv$/ OR '$imv' = '$__all') GROUP BY time($__interval) fill(null)",
-          "alias": "VUs"
+          "alias": "VUs",
+          "query": "SELECT max(\"value\") FROM \"vus\" WHERE $timeFilter AND (\"pipeline_id\" =~ /^$pipeline_id$/ OR '$pipeline_id' = '$__all') AND (\"script_name\" =~ /^$script_name$/ OR '$script_name' = '$__all') GROUP BY time($__interval)"
         },
         {
           "refId": "D",
-          "query": "SELECT sum(\"value\") FROM \"http_req_failed\" WHERE $timeFilter AND (\"pipeline_id\" =~ /^$pipeline_id$/ OR '$pipeline_id' = '$__all') AND (\"script_name\" =~ /^$script_name$/ OR '$script_name' = '$__all') AND (\"imv\" =~ /^$imv$/ OR '$imv' = '$__all') GROUP BY time($__interval) fill(null)",
-          "alias": "Errores"
+          "alias": "Errores",
+          "query": "SELECT sum(\"value\") FROM \"http_req_failed\" WHERE $timeFilter AND (\"pipeline_id\" =~ /^$pipeline_id$/ OR '$pipeline_id' = '$__all') AND (\"script_name\" =~ /^$script_name$/ OR '$script_name' = '$__all') GROUP BY time($__interval)"
         }
       ]
     },
+
     {
       "id": 8,
       "type": "row",
       "title": "Detalle por oleada (scenario = $scenario)",
-      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 16 },
-      "collapsed": false,
-      "panels": []
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 16 }
     },
+
     {
       "id": 9,
       "type": "timeseries",
       "title": "Latencia por oleada",
       "gridPos": { "h": 8, "w": 12, "x": 0, "y": 17 },
-      "datasource": {
-        "type": "influxdb",
-        "uid": "influxdb-k6"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "ms",
-          "color": { "mode": "palette-classic" },
-          "custom": {
-            "drawStyle": "line",
-            "lineWidth": 2,
-            "fillOpacity": 10,
-            "showPoints": "never"
-          }
-        },
-        "overrides": []
-      },
-      "options": {
-        "legend": { "displayMode": "table", "placement": "bottom" },
-        "tooltip": { "mode": "multi" }
-      },
+      "datasource": { "type": "influxdb", "uid": "influxdb-k6" },
       "targets": [
         {
           "refId": "A",
-          "query": "SELECT percentile(\"value\",95) FROM \"http_req_duration\" WHERE $timeFilter AND \"scenario\" =~ /^$scenario$/ AND (\"pipeline_id\" =~ /^$pipeline_id$/ OR '$pipeline_id' = '$__all') AND (\"script_name\" =~ /^$script_name$/ OR '$script_name' = '$__all') AND (\"imv\" =~ /^$imv$/ OR '$imv' = '$__all') GROUP BY time($__interval) fill(null)",
-          "alias": "P95 Latency ($scenario)"
+          "alias": "P95 Latency ($scenario)",
+          "query": "SELECT percentile(\"value\",95) FROM \"http_req_duration\" WHERE $timeFilter AND \"scenario\" =~ /^$scenario$/ AND (\"pipeline_id\" =~ /^$pipeline_id$/ OR '$pipeline_id' = '$__all') AND (\"script_name\" =~ /^$script_name$/ OR '$script_name' = '$__all') GROUP BY time($__interval)"
         }
       ]
     },
+
     {
       "id": 10,
       "type": "timeseries",
       "title": "Throughput / VUs / Errores por oleada",
       "gridPos": { "h": 8, "w": 12, "x": 12, "y": 17 },
-      "datasource": {
-        "type": "influxdb",
-        "uid": "influxdb-k6"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": { "mode": "palette-classic" },
-          "custom": {
-            "drawStyle": "line",
-            "lineWidth": 2,
-            "fillOpacity": 10,
-            "showPoints": "never"
-          }
-        },
-        "overrides": []
-      },
-      "options": {
-        "legend": { "displayMode": "table", "placement": "bottom" },
-        "tooltip": { "mode": "multi" }
-      },
+      "datasource": { "type": "influxdb", "uid": "influxdb-k6" },
       "targets": [
         {
           "refId": "A",
-          "query": "SELECT sum(\"value\") / $__interval_s FROM \"http_reqs\" WHERE $timeFilter AND \"scenario\" =~ /^$scenario$/ AND (\"pipeline_id\" =~ /^$pipeline_id$/ OR '$pipeline_id' = '$__all') AND (\"script_name\" =~ /^$script_name$/ OR '$script_name' = '$__all') AND (\"imv\" =~ /^$imv$/ OR '$imv' = '$__all') GROUP BY time($__interval) fill(null)",
-          "alias": "Throughput ($scenario)"
+          "alias": "Throughput ($scenario)",
+          "query": "SELECT sum(\"value\") / $__interval_s FROM \"http_reqs\" WHERE $timeFilter AND \"scenario\" =~ /^$scenario$/ AND (\"pipeline_id\" =~ /^$pipeline_id$/ OR '$pipeline_id' = '$__all') AND (\"script_name\" =~ /^$script_name$/ OR '$script_name' = '$__all') GROUP BY time($__interval)"
         },
         {
           "refId": "B",
-          "query": "SELECT max(\"value\") FROM \"vus\" WHERE $timeFilter AND \"scenario\" =~ /^$scenario$/ AND (\"pipeline_id\" =~ /^$pipeline_id$/ OR '$pipeline_id' = '$__all') AND (\"script_name\" =~ /^$script_name$/ OR '$script_name' = '$__all') AND (\"imv\" =~ /^$imv$/ OR '$imv' = '$__all') GROUP BY time($__interval) fill(null)",
-          "alias": "VUs ($scenario)"
+          "alias": "VUs ($scenario)",
+          "query": "SELECT max(\"value\") FROM \"vus\" WHERE $timeFilter AND \"scenario\" =~ /^$scenario$/ AND (\"pipeline_id\" =~ /^$pipeline_id$/ OR '$pipeline_id' = '$__all') AND (\"script_name\" =~ /^$script_name$/ OR '$script_name' = '$__all') GROUP BY time($__interval)"
         },
         {
           "refId": "C",
-          "query": "SELECT sum(\"value\") FROM \"http_req_failed\" WHERE $timeFilter AND \"scenario\" =~ /^$scenario$/ AND (\"pipeline_id\" =~ /^$pipeline_id$/ OR '$pipeline_id' = '$__all') AND (\"script_name\" =~ /^$script_name$/ OR '$script_name' = '$__all') AND (\"imv\" =~ /^$imv$/ OR '$imv' = '$__all') GROUP BY time($__interval) fill(null)",
-          "alias": "Errores ($scenario)"
+          "alias": "Errores ($scenario)",
+          "query": "SELECT sum(\"value\") FROM \"http_req_failed\" WHERE $timeFilter AND \"scenario\" =~ /^$scenario$/ AND (\"pipeline_id\" =~ /^$pipeline_id$/ OR '$pipeline_id' = '$__all') AND (\"script_name\" =~ /^$script_name$/ OR '$script_name' = '$__all') GROUP BY time($__interval)"
         }
       ]
     },
+
     {
       "id": 11,
       "type": "row",
-      "title": "Comparativa entre oleadas (todos los scenarios)",
-      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 25 },
-      "collapsed": false,
-      "panels": []
+      "title": "Comparativa entre oleadas",
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 25 }
     },
+
     {
       "id": 12,
       "type": "barchart",
-      "title": "Latencia P95 por oleada (scenario)",
+      "title": "Latencia P95 por oleada",
       "gridPos": { "h": 8, "w": 12, "x": 0, "y": 26 },
-      "datasource": {
-        "type": "influxdb",
-        "uid": "influxdb-k6"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "ms",
-          "color": { "mode": "palette-classic" }
-        },
-        "overrides": []
-      },
-      "options": {
-        "legend": { "displayMode": "table", "placement": "bottom" },
-        "tooltip": { "mode": "single" },
-        "orientation": "horizontal",
-        "barWidth": 0.8
-      },
+      "datasource": { "type": "influxdb", "uid": "influxdb-k6" },
       "targets": [
         {
           "refId": "A",
-          "query": "SELECT percentile(\"value\",95) AS p95 FROM \"http_req_duration\" WHERE $timeFilter AND (\"pipeline_id\" =~ /^$pipeline_id$/ OR '$pipeline_id' = '$__all') AND (\"script_name\" =~ /^$script_name$/ OR '$script_name' = '$__all') AND (\"imv\" =~ /^$imv$/ OR '$imv' = '$__all') GROUP BY \"scenario\"",
-          "alias": "$tag_scenario"
+          "alias": "$tag_scenario",
+          "query": "SELECT percentile(\"value\",95) FROM \"http_req_duration\" WHERE $timeFilter AND (\"pipeline_id\" =~ /^$pipeline_id$/ OR '$pipeline_id' = '$__all') AND (\"script_name\" =~ /^$script_name$/ OR '$script_name' = '$__all') GROUP BY \"scenario\""
         }
       ]
     },
+
     {
       "id": 13,
       "type": "barchart",
-      "title": "Throughput medio por oleada (scenario)",
+      "title": "Throughput medio por oleada",
       "gridPos": { "h": 8, "w": 12, "x": 12, "y": 26 },
-      "datasource": {
-        "type": "influxdb",
-        "uid": "influxdb-k6"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "req/s",
-          "color": { "mode": "palette-classic" }
-        },
-        "overrides": []
-      },
-      "options": {
-        "legend": { "displayMode": "table", "placement": "bottom" },
-        "tooltip": { "mode": "single" },
-        "orientation": "horizontal",
-        "barWidth": 0.8
-      },
+      "datasource": { "type": "influxdb", "uid": "influxdb-k6" },
       "targets": [
         {
           "refId": "A",
-          "query": "SELECT sum(\"value\") / (max(time) - min(time)) * 1000000000 AS rps FROM \"http_reqs\" WHERE $timeFilter AND (\"pipeline_id\" =~ /^$pipeline_id$/ OR '$pipeline_id' = '$__all') AND (\"script_name\" =~ /^$script_name$/ OR '$script_name' = '$__all') AND (\"imv\" =~ /^$imv$/ OR '$imv' = '$__all') GROUP BY \"scenario\"",
-          "alias": "$tag_scenario"
+          "alias": "$tag_scenario",
+          "query": "SELECT sum(\"value\") / (max(time) - min(time)) * 1000000000 FROM \"http_reqs\" WHERE $timeFilter AND (\"pipeline_id\" =~ /^$pipeline_id$/ OR '$pipeline_id' = '$__all') AND (\"script_name\" =~ /^$script_name$/ OR '$script_name' = '$__all') GROUP BY \"scenario\""
         }
       ]
     }
+
   ]
 }
