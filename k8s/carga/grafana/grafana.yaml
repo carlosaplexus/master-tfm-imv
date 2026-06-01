@@ -13,6 +13,7 @@ spec:
       labels:
         app: grafana
     spec:
+      serviceAccountName: grafana-sa
       containers:
       - name: grafana
         image: grafana/grafana:latest

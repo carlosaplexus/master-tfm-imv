@@ -1,0 +1,13 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: grafana-configmap-binding
+  namespace: imv-simulacion
+subjects:
+- kind: ServiceAccount
+  name: grafana-sa
+  namespace: imv-simulacion
+roleRef:
+  kind: Role
+  name: grafana-configmap-reader
+  apiGroup: rbac.authorization.k8s.io

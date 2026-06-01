@@ -139,6 +139,11 @@ deploy:
 	kubectl create configmap grafana-dashboard-k6 --from-file=k8s/carga/grafana/json/k6-dashboard1.json -n imv-simulacion
 	kubectl label configmap grafana-dashboard-k6 grafana_dashboard="1" -n imv-simulacion
 
+	@echo "Autorizando RBAC a sidecar grafana..."
+	kubectl apply -f grafana-sa.yaml
+	kubectl apply -f grafana-role.yaml
+	kubectl apply -f grafana-rolebinding.yaml
+
 	@echo "▶ Desplegando Grafana..."
 	kubectl apply -f k8s/carga/grafana/
 
@@ -148,12 +153,12 @@ deploy:
 	@echo "▶ Servicios con grafana desplegado..."	
 	kubectl get svc -n $(NAMESPACE)
 
-	@echo "Workspace actual:"
-	pwd
-	@echo "Contenido del workspace:"
-	ls -R .
-	@echo "Contenido de tests_carga:"
-	ls -l tests_carga/ || echo "tests_carga NO existe"
+# 	@echo "Workspace actual:"
+# 	pwd
+# 	@echo "Contenido del workspace:"
+# 	ls -R .
+# 	@echo "Contenido de tests_carga:"
+# 	ls -l tests_carga/ || echo "tests_carga NO existe"
 
 	@echo "▶ Generando ConfigMap automático con scripts K6..."
 	@chmod +x $(WORKSPACE)/tests_carga/run-all.sh
