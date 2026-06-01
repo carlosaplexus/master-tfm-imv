@@ -27,6 +27,9 @@ spec:
           mountPath: /var/lib/grafana/dashboards
         - name: grafana-providers
           mountPath: /etc/grafana/provisioning/dashboards
+        - name: grafana-datasource
+          mountPath: /etc/grafana/provisioning/datasources
+
 
       - name: grafana-sc-dashboard
         image: kiwigrid/k8s-sidecar:1.15.0
@@ -44,4 +47,7 @@ spec:
         emptyDir: {}
       - name: grafana-providers
         configMap:
-          name: grafana-dashboard-provider          
+          name: grafana-dashboard-provider
+      - name: grafana-datasource
+        configMap:
+          name: grafana-datasource
