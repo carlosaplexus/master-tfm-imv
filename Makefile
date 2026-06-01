@@ -136,7 +136,7 @@ deploy:
 	kubectl apply -f k8s/carga/influxdb/
 
 	@echo "Creando configuracion importacion de dashboards a grafana..."
-	kubectl create configmap grafana-dashboard-k6 --from-file=k6-dashboard1.json -n imv-simulacion
+	kubectl create configmap grafana-dashboard-k6 --from-file=$(WORKSPACE)/json/k6-dashboard1.json -n imv-simulacion
 	kubectl label configmap grafana-dashboard-k6 grafana_dashboard="1" -n imv-simulacion
 
 	@echo "▶ Desplegando Grafana..."
