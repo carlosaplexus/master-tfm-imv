@@ -145,6 +145,7 @@ deploy:
 	kubectl apply -f k8s/carga/grafana/grafana-role-binding.yaml
 
 	@echo "▶ Desplegando Grafana..."
+	kubectl apply -f k8s/carga/grafana/service-grafana.yaml
 	kubectl apply -f k8s/carga/grafana/grafana.yaml
 
 	@echo "▶ Esperando a que el LoadBalancer grafana esté listo..."
