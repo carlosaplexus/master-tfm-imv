@@ -145,6 +145,7 @@ deploy:
 	kubectl apply -f k8s/carga/grafana/grafana-role-binding.yaml
 
 	@echo "▶ Desplegando Grafana..."
+	kubectl apply -f k8s/carga/grafana/confmap-dshb-provider.yaml
 	kubectl apply -f k8s/carga/grafana/service-grafana.yaml
 	kubectl apply -f k8s/carga/grafana/grafana.yaml
 
