@@ -34,7 +34,6 @@
         "refresh": 1,
         "current": { "text": "All", "value": "$__all" }
       },
-
       {
         "name": "imv",
         "label": "Escenario IMV",
@@ -45,7 +44,6 @@
           "value": "Escenario IMV"
         }
       },
-
       {
         "name": "scenario",
         "label": "Oleada (scenario)",
@@ -76,8 +74,22 @@
       "datasource": { "type": "influxdb", "uid": "influxdb-k6" },
       "targets": [
         {
-          "query": "SELECT percentile(\"value\",95) FROM \"http_req_duration\" WHERE $timeFilter AND (\"pipeline_id\" =~ /^$pipeline_id$/ OR '$pipeline_id' = '$__all') AND (\"script_name\" =~ /^$script_name$/ OR '$script_name' = '$__all')",
-          "refId": "A"
+          "refId": "A",
+          "measurement": "http_req_duration",
+          "groupBy": [
+            { "type": "time", "params": ["$__interval"] },
+            { "type": "fill", "params": ["null"] }
+          ],
+          "select": [
+            [
+              { "type": "field", "params": ["value"] },
+              { "type": "percentile", "params": [95] }
+            ]
+          ],
+          "tags": [
+            { "key": "pipeline_id", "operator": "=~", "value": "/^$pipeline_id$/" },
+            { "key": "script_name", "operator": "=~", "value": "/^$script_name$/" }
+          ]
         }
       ],
       "fieldConfig": {
@@ -103,8 +115,22 @@
       "datasource": { "type": "influxdb", "uid": "influxdb-k6" },
       "targets": [
         {
-          "query": "SELECT percentile(\"value\",99) FROM \"http_req_duration\" WHERE $timeFilter AND (\"pipeline_id\" =~ /^$pipeline_id$/ OR '$pipeline_id' = '$__all') AND (\"script_name\" =~ /^$script_name$/ OR '$script_name' = '$__all')",
-          "refId": "A"
+          "refId": "A",
+          "measurement": "http_req_duration",
+          "groupBy": [
+            { "type": "time", "params": ["$__interval"] },
+            { "type": "fill", "params": ["null"] }
+          ],
+          "select": [
+            [
+              { "type": "field", "params": ["value"] },
+              { "type": "percentile", "params": [99] }
+            ]
+          ],
+          "tags": [
+            { "key": "pipeline_id", "operator": "=~", "value": "/^$pipeline_id$/" },
+            { "key": "script_name", "operator": "=~", "value": "/^$script_name$/" }
+          ]
         }
       ],
       "fieldConfig": {
@@ -130,8 +156,22 @@
       "datasource": { "type": "influxdb", "uid": "influxdb-k6" },
       "targets": [
         {
-          "query": "SELECT sum(\"value\") / $__interval_s FROM \"http_reqs\" WHERE $timeFilter AND (\"pipeline_id\" =~ /^$pipeline_id$/ OR '$pipeline_id' = '$__all') AND (\"script_name\" =~ /^$script_name$/ OR '$script_name' = '$__all') GROUP BY time($__interval)",
-          "refId": "A"
+          "refId": "A",
+          "measurement": "http_reqs",
+          "groupBy": [
+            { "type": "time", "params": ["$__interval"] },
+            { "type": "fill", "params": ["null"] }
+          ],
+          "select": [
+            [
+              { "type": "field", "params": ["value"] },
+              { "type": "sum", "params": [] }
+            ]
+          ],
+          "tags": [
+            { "key": "pipeline_id", "operator": "=~", "value": "/^$pipeline_id$/" },
+            { "key": "script_name", "operator": "=~", "value": "/^$script_name$/" }
+          ]
         }
       ],
       "fieldConfig": {
@@ -157,8 +197,56 @@
       "datasource": { "type": "influxdb", "uid": "influxdb-k6" },
       "targets": [
         {
-          "query": "SELECT 100 * (sum(\"value\") / (SELECT sum(\"value\") FROM \"http_reqs\" WHERE $timeFilter AND (\"pipeline_id\" =~ /^$pipeline_id$/ OR '$pipeline_id' = '$__all') AND (\"script_name\" =~ /^$script_name$/ OR '$script_name' = '$__all'))) FROM \"http_req_failed\" WHERE $timeFilter AND (\"pipeline_id\" =~ /^$pipeline_id$/ OR '$pipeline_id' = '$__all') AND (\"script_name\" =~ /^$script_name$/ OR '$script_name' = '$__all')",
-          "refId": "A"
+          "refId": "A",
+          "measurement": "http_req_failed",
+          "groupBy": [
+            { "type": "time", "params": ["$__interval"] },
+            { "type": "fill", "params": ["null"] }
+          ],
+          "select": [
+            [
+              { "type": "field", "params": ["value"] },
+              { "type": "sum", "params": [] }
+            ]
+          ],
+          "tags": [
+            { "key": "pipeline_id", "operator": "=~", "value": "/^$pipeline_id$/" },
+            { "key": "script_name", "operator": "=~", "value": "/^$script_name$/" }
+          ]
+        },
+        {
+          "refId": "B",
+          "measurement": "http_reqs",
+          "groupBy": [
+            { "type": "time", "params": ["$__interval"] },
+            { "type": "fill", "params": ["null"] }
+          ],
+          "select": [
+            [
+              { "type": "field", "params": ["value"] },
+              { "type": "sum", "params": [] }
+            ]
+          ],
+          "tags": [
+            { "key": "pipeline_id", "operator": "=~", "value": "/^$pipeline_id$/" },
+            { "key": "script_name", "operator": "=~", "value": "/^$script_name$/" }
+          ]
+        }
+      ],
+      "transformations": [
+        {
+          "id": "calculateField",
+          "options": {
+            "mode": "reduceRow",
+            "reduce": { "reducer": "sum" },
+            "alias": "error_pct",
+            "binary": {
+              "left": "A",
+              "operator": "/",
+              "right": "B"
+            },
+            "multiply": 100
+          }
         }
       ],
       "fieldConfig": {
@@ -193,22 +281,78 @@
         {
           "refId": "A",
           "alias": "P95 Latency",
-          "query": "SELECT percentile(\"value\",95) FROM \"http_req_duration\" WHERE $timeFilter AND (\"pipeline_id\" =~ /^$pipeline_id$/ OR '$pipeline_id' = '$__all') AND (\"script_name\" =~ /^$script_name$/ OR '$script_name' = '$__all') GROUP BY time($__interval)"
+          "measurement": "http_req_duration",
+          "groupBy": [
+            { "type": "time", "params": ["$__interval"] },
+            { "type": "fill", "params": ["null"] }
+          ],
+          "select": [
+            [
+              { "type": "field", "params": ["value"] },
+              { "type": "percentile", "params": [95] }
+            ]
+          ],
+          "tags": [
+            { "key": "pipeline_id", "operator": "=~", "value": "/^$pipeline_id$/" },
+            { "key": "script_name", "operator": "=~", "value": "/^$script_name$/" }
+          ]
         },
         {
           "refId": "B",
           "alias": "Throughput",
-          "query": "SELECT sum(\"value\") / $__interval_s FROM \"http_reqs\" WHERE $timeFilter AND (\"pipeline_id\" =~ /^$pipeline_id$/ OR '$pipeline_id' = '$__all') AND (\"script_name\" =~ /^$script_name$/ OR '$script_name' = '$__all') GROUP BY time($__interval)"
+          "measurement": "http_reqs",
+          "groupBy": [
+            { "type": "time", "params": ["$__interval"] },
+            { "type": "fill", "params": ["null"] }
+          ],
+          "select": [
+            [
+              { "type": "field", "params": ["value"] },
+              { "type": "sum", "params": [] }
+            ]
+          ],
+          "tags": [
+            { "key": "pipeline_id", "operator": "=~", "value": "/^$pipeline_id$/" },
+            { "key": "script_name", "operator": "=~", "value": "/^$script_name$/" }
+          ]
         },
         {
           "refId": "C",
           "alias": "VUs",
-          "query": "SELECT max(\"value\") FROM \"vus\" WHERE $timeFilter AND (\"pipeline_id\" =~ /^$pipeline_id$/ OR '$pipeline_id' = '$__all') AND (\"script_name\" =~ /^$script_name$/ OR '$script_name' = '$__all') GROUP BY time($__interval)"
+          "measurement": "vus",
+          "groupBy": [
+            { "type": "time", "params": ["$__interval"] },
+            { "type": "fill", "params": ["null"] }
+          ],
+          "select": [
+            [
+              { "type": "field", "params": ["value"] },
+              { "type": "max", "params": [] }
+            ]
+          ],
+          "tags": [
+            { "key": "pipeline_id", "operator": "=~", "value": "/^$pipeline_id$/" },
+            { "key": "script_name", "operator": "=~", "value": "/^$script_name$/" }
+          ]
         },
         {
           "refId": "D",
           "alias": "Errores",
-          "query": "SELECT sum(\"value\") FROM \"http_req_failed\" WHERE $timeFilter AND (\"pipeline_id\" =~ /^$pipeline_id$/ OR '$pipeline_id' = '$__all') AND (\"script_name\" =~ /^$script_name$/ OR '$script_name' = '$__all') GROUP BY time($__interval)"
+          "measurement": "http_req_failed",
+          "groupBy": [
+            { "type": "time", "params": ["$__interval"] },
+            { "type": "fill", "params": ["null"] }
+          ],
+          "select": [
+            [
+              { "type": "field", "params": ["value"] },
+              { "type": "sum", "params": [] }
+            ]
+          ],
+          "tags": [
+            { "key": "pipeline_id", "operator": "=~", "value": "/^$pipeline_id$/" },
+            { "key": "script_name", "operator": "=~", "value": "/^$script_name$/" }
+          ]
         }
       ]
     },
@@ -230,7 +374,22 @@
         {
           "refId": "A",
           "alias": "P95 Latency ($scenario)",
-          "query": "SELECT percentile(\"value\",95) FROM \"http_req_duration\" WHERE $timeFilter AND \"scenario\" =~ /^$scenario$/ AND (\"pipeline_id\" =~ /^$pipeline_id$/ OR '$pipeline_id' = '$__all') AND (\"script_name\" =~ /^$script_name$/ OR '$script_name' = '$__all') GROUP BY time($__interval)"
+          "measurement": "http_req_duration",
+          "groupBy": [
+            { "type": "time", "params": ["$__interval"] },
+            { "type": "fill", "params": ["null"] }
+          ],
+          "select": [
+            [
+              { "type": "field", "params": ["value"] },
+              { "type": "percentile", "params": [95] }
+            ]
+          ],
+          "tags": [
+            { "key": "scenario", "operator": "=~", "value": "/^$scenario$/" },
+            { "key": "pipeline_id", "operator": "=~", "value": "/^$pipeline_id$/" },
+            { "key": "script_name", "operator": "=~", "value": "/^$script_name$/" }
+          ]
         }
       ]
     },
@@ -245,17 +404,62 @@
         {
           "refId": "A",
           "alias": "Throughput ($scenario)",
-          "query": "SELECT sum(\"value\") / $__interval_s FROM \"http_reqs\" WHERE $timeFilter AND \"scenario\" =~ /^$scenario$/ AND (\"pipeline_id\" =~ /^$pipeline_id$/ OR '$pipeline_id' = '$__all') AND (\"script_name\" =~ /^$script_name$/ OR '$script_name' = '$__all') GROUP BY time($__interval)"
+          "measurement": "http_reqs",
+          "groupBy": [
+            { "type": "time", "params": ["$__interval"] },
+            { "type": "fill", "params": ["null"] }
+          ],
+          "select": [
+            [
+              { "type": "field", "params": ["value"] },
+              { "type": "sum", "params": [] }
+            ]
+          ],
+          "tags": [
+            { "key": "scenario", "operator": "=~", "value": "/^$scenario$/" },
+            { "key": "pipeline_id", "operator": "=~", "value": "/^$pipeline_id$/" },
+            { "key": "script_name", "operator": "=~", "value": "/^$script_name$/" }
+          ]
         },
         {
           "refId": "B",
           "alias": "VUs ($scenario)",
-          "query": "SELECT max(\"value\") FROM \"vus\" WHERE $timeFilter AND \"scenario\" =~ /^$scenario$/ AND (\"pipeline_id\" =~ /^$pipeline_id$/ OR '$pipeline_id' = '$__all') AND (\"script_name\" =~ /^$script_name$/ OR '$script_name' = '$__all') GROUP BY time($__interval)"
+          "measurement": "vus",
+          "groupBy": [
+            { "type": "time", "params": ["$__interval"] },
+            { "type": "fill", "params": ["null"] }
+          ],
+          "select": [
+            [
+              { "type": "field", "params": ["value"] },
+              { "type": "max", "params": [] }
+            ]
+          ],
+          "tags": [
+            { "key": "scenario", "operator": "=~", "value": "/^$scenario$/" },
+            { "key": "pipeline_id", "operator": "=~", "value": "/^$pipeline_id$/" },
+            { "key": "script_name", "operator": "=~", "value": "/^$script_name$/" }
+          ]
         },
         {
           "refId": "C",
           "alias": "Errores ($scenario)",
-          "query": "SELECT sum(\"value\") FROM \"http_req_failed\" WHERE $timeFilter AND \"scenario\" =~ /^$scenario$/ AND (\"pipeline_id\" =~ /^$pipeline_id$/ OR '$pipeline_id' = '$__all') AND (\"script_name\" =~ /^$script_name$/ OR '$script_name' = '$__all') GROUP BY time($__interval)"
+          "measurement": "http_req_failed",
+          "groupBy": [
+            { "type": "time", "params": ["$__interval"] },
+            { "type": "fill", "params": ["null"] }
+          ],
+          "select": [
+            [
+              { "type": "field", "params": ["value"] },
+              { "type": "sum", "params": [] }
+            ]
+          ],
+          "tags": [
+            { "key": "scenario", "operator": "=~", "value": "/^$scenario$/" },
+            { "key": "pipeline_id", "operator": "=~", "value": "/^$pipeline_id$/" },
+            { "key": "script_name", "operator": "=~", "value": "/^$script_name$/" }
+          ]
         }
       ]
     },
@@ -277,7 +481,20 @@
         {
           "refId": "A",
           "alias": "$tag_scenario",
-          "query": "SELECT percentile(\"value\",95) FROM \"http_req_duration\" WHERE $timeFilter AND (\"pipeline_id\" =~ /^$pipeline_id$/ OR '$pipeline_id' = '$__all') AND (\"script_name\" =~ /^$script_name$/ OR '$script_name' = '$__all') GROUP BY \"scenario\""
+          "measurement": "http_req_duration",
+          "groupBy": [
+            { "type": "tag", "params": ["scenario"] }
+          ],
+          "select": [
+            [
+              { "type": "field", "params": ["value"] },
+              { "type": "percentile", "params": [95] }
+            ]
+          ],
+          "tags": [
+            { "key": "pipeline_id", "operator": "=~", "value": "/^$pipeline_id$/" },
+            { "key": "script_name", "operator": "=~", "value": "/^$script_name$/" }
+          ]
         }
       ]
     },
@@ -292,10 +509,50 @@
         {
           "refId": "A",
           "alias": "$tag_scenario",
-          "query": "SELECT sum(\"value\") / (max(time) - min(time)) * 1000000000 FROM \"http_reqs\" WHERE $timeFilter AND (\"pipeline_id\" =~ /^$pipeline_id$/ OR '$pipeline_id' = '$__all') AND (\"script_name\" =~ /^$script_name$/ OR '$script_name' = '$__all') GROUP BY \"scenario\""
+          "measurement": "http_reqs",
+          "groupBy": [
+            { "type": "tag", "params": ["scenario"] }
+          ],
+          "select": [
+            [
+              { "type": "field", "params": ["value"] },
+              { "type": "sum", "params": [] }
+            ]
+          ],
+          "tags": [
+            { "key": "pipeline_id", "operator": "=~", "value": "/^$pipeline_id$/" },
+            { "key": "script_name", "operator": "=~", "value": "/^$script_name$/" }
+          ]
         }
       ]
     }
+  ],
 
-  ]
+  "timepicker": {
+    "refresh_intervals": [
+      "5s",
+      "10s",
+      "30s",
+      "1m",
+      "5m",
+      "15m",
+      "30m",
+      "1h"
+    ],
+    "time_options": [
+      "5m",
+      "15m",
+      "30m",
+      "1h",
+      "6h",
+      "12h",
+      "24h",
+      "2d",
+      "7d",
+      "30d"
+    ]
+  },
+
+  "refresh": "10s",
+  "liveNow": false
 }
