@@ -142,7 +142,7 @@ deploy:
 	@echo "Autorizando RBAC a sidecar grafana..."
 	kubectl apply -f k8s/carga/grafana/grafana-sa.yaml
 	kubectl apply -f k8s/carga/grafana/grafana-role.yaml
-	kubectl apply -f k8s/carga/grafana/grafana-rolebinding.yaml
+	kubectl apply -f k8s/carga/grafana/grafana-role-binding.yaml
 
 	@echo "▶ Desplegando Grafana..."
 	kubectl apply -f k8s/carga/grafana/grafana.yaml
