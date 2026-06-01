@@ -21,3 +21,26 @@ spec:
         env:
         - name: GF_SECURITY_ADMIN_PASSWORD
           value: admin
+        volumeMounts:
+        - name: grafana-dashboards
+          mountPath: /var/lib/grafana/dashboards
+        - name: grafana-providers
+          mountPath: /etc/grafana/provisioning/dashboards
+          
+      - name: grafana-sc-dashboard
+        image: kiwigrid/k8s-sidecar:1.15.0
+        env:
+        - name: LABEL
+          value: grafana_dashboard
+        - name: FOLDER
+          value: /var/lib/grafana/dashboards
+        volumeMounts:
+        - name: grafana-dashboards
+          mountPath: /var/lib/grafana/dashboards
+
+      volumes:
+      - name: grafana-dashboards
+        emptyDir: {}
+      - name: grafana-providers
+        configMap:
+          name: grafana-dashboard-provider          
