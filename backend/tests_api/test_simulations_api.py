@@ -70,6 +70,7 @@ def test_wait_and_finalize(client, monkeypatch, tmp_path):
         )
         db.session.add(sim)
         db.session.commit()
+        sim_id = sim.id   # ← IMPORTANTE
 
     # Crear archivo summary falso
     summary = tmp_path / "summary.json"
@@ -82,18 +83,19 @@ def test_wait_and_finalize(client, monkeypatch, tmp_path):
         def wait(self):
             return 0
 
-    ACTIVE_SIMULATIONS[sim.id] = DummyProcess()
+    ACTIVE_SIMULATIONS[sim_id] = DummyProcess()
 
-    # Mockear os.path.exists para que no falle
+    # Mockear os.path.exists
     monkeypatch.setattr("os.path.exists", lambda p: True)
 
     # Ejecutar la función
     from backend.app import wait_and_finalize
-    wait_and_finalize(app, sim.id, str(summary), 0)
+    wait_and_finalize(app, sim_id, str(summary), 0)
 
-    # Verificar que la simulación se actualizó
+    # Verificar actualización
     with app.app_context():
-        updated = app.Simulation.query.get(sim.id)
+        updated = app.Simulation.query.get(sim_id)
         assert updated.status in ("finished", "error")
+
 
 
