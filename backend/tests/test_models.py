@@ -15,7 +15,8 @@ def test_patient_model(client):
             frecuencia_cardiaca=80,
             frecuencia_respiratoria=20,
             presion_sistolica=120,
-            glasgow=15
+            glasgow=15,
+            estado="registrado"
         )
 
         db.session.add(p)
@@ -30,10 +31,12 @@ def test_simulation_model(client):
 
     with app.app_context():
         s = Simulation(
-            job_name="job-test-1",
-            num_generators=2,
-            patients_per_generator=100,
-            status="created"
+            scenario="scenario",
+            duration=3,
+            avg_latency_ms=1.3,
+            vus=30,
+            throughput=0,
+            status="running"
         )
 
         db.session.add(s)
