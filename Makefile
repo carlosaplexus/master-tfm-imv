@@ -89,7 +89,7 @@ deploy:
 	sleep 20
 
 	@echo "▶ Desplegando Ingress Controller..."
-	kubectl apply -f k8s/backend/ingress-nginx/
+	kubectl apply -f k8s/imgress-nginx/
 
 	@echo "▶ Esperando LoadBalancer del Ingress Controller..."
 	sleep 20
