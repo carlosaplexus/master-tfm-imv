@@ -165,6 +165,8 @@ EOF
 # 	sleep 10
 # 	@echo "▶ Servicios aplicacion desplegados..."
 # 	kubectl get svc -n $(NAMESPACE)
+
+deploy-carga:
 	@echo "▶ Desplegando InfluxDB..."
 	kubectl apply -f k8s/carga/influxdb/
 

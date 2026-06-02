@@ -121,6 +121,9 @@ pipeline {
             steps {
                 sh 'make deploy'
             }
+            steps {
+                sh 'make deploy-carga'
+            }
         }    
 
         stage('Obtener url pública aplicación') {
