@@ -6,7 +6,11 @@ app = Flask(__name__)
 # LOCAL
 # BACKEND_URL = os.getenv("BACKEND_URL", "http://localhost:5001")
 # CON DOCKER COMPOSE
-BACKEND_URL = os.getenv("BACKEND_URL", "http://backend:5001")
+# BACKEND_URL = os.getenv("BACKEND_URL", "http://backend:5001")
+# PARA INGRESS K8S
+BACKEND_URL = os.getenv("BACKEND_URL")
+if not BACKEND_URL:
+    raise RuntimeError("BACKEND_URL no configurado")
 
 TEMPLATE = """
 <!doctype html>

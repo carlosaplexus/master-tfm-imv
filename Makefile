@@ -113,24 +113,67 @@ aws-login:
 # 	kubectl apply -f k8s/frontend/
 
 deploy:
-	@echo "▶ Aplicando manifiestos Kubernetes..."
+	@echo "▶ Aplicando namespace..."
 	kubectl apply -f k8s/namespace.yaml
+
+	@echo "▶ Desplegando Postgres..."
 	kubectl apply -f k8s/postgres/
 
-	@echo "▶ Esperando a que el Postgres esté listo..."
+	@echo "▶ Esperando a que Postgres esté listo..."
 	sleep 20
+
+	@echo "▶ Desplegando Ingress Controller..."
+	kubectl apply -f k8s/backend/ingress-nginx/
+
+	@echo "▶ Esperando LoadBalancer del Ingress Controller..."
+	sleep 20
+
+	@echo "▶ Obteniendo hostname del Ingress..."
+	INGRESS_HOST=$$(kubectl get svc ingress-nginx -n ingress-nginx \
+		-o jsonpath='{.status.loadBalancer.ingress[0].hostname}'); \
+	echo "Hostname: $$INGRESS_HOST"; \
+	echo "▶ Generando ConfigMap del frontend..."; \
+	cat > k8s/frontend/configmap.yaml <<EOF
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: frontend-config
+  namespace: $(NAMESPACE)
+data:
+  BACKEND_URL: "http://$$INGRESS_HOST"
+EOF
 
 	@echo "▶ Desplegando backend..."
 	kubectl apply -f k8s/backend/
 
+	@echo "▶ Desplegando ingress backend..."
+	kubectl apply -f k8s/backend-ingress/ingress.yaml
+
 	@echo "▶ Desplegando frontend..."
 	kubectl apply -f k8s/frontend/
 
-	@echo "▶ Esperando a que el LoadBalancer frontend esté listo..."
-	sleep 10
-
-	@echo "▶ Servicios aplicacion desplegados..."
+	@echo "▶ Servicios desplegados"
 	kubectl get svc -n $(NAMESPACE)
+
+
+# 	@echo "▶ Aplicando manifiestos Kubernetes..."
+# 	kubectl apply -f k8s/namespace.yaml
+# 	kubectl apply -f k8s/postgres/
+
+# 	@echo "▶ Esperando a que el Postgres esté listo..."
+# 	sleep 20
+
+# 	@echo "▶ Desplegando backend..."
+# 	kubectl apply -f k8s/backend/
+
+# 	@echo "▶ Desplegando frontend..."
+# 	kubectl apply -f k8s/frontend/
+
+# 	@echo "▶ Esperando a que el LoadBalancer frontend esté listo..."
+# 	sleep 10
+
+# 	@echo "▶ Servicios aplicacion desplegados..."
+# 	kubectl get svc -n $(NAMESPACE)
 
 	@echo "▶ Desplegando InfluxDB..."
 	kubectl apply -f k8s/carga/influxdb/
