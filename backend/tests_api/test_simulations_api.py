@@ -75,13 +75,25 @@ def test_wait_and_finalize(client, monkeypatch, tmp_path):
     summary = tmp_path / "summary.json"
     summary.write_text('{"metrics": {}}')
 
-    # Mockear subprocess
+    # Simular proceso activo
+    from backend.app import ACTIVE_SIMULATIONS
+
+    class DummyProcess:
+        def wait(self):
+            return 0
+
+    ACTIVE_SIMULATIONS[sim.id] = DummyProcess()
+
+    # Mockear os.path.exists para que no falle
     monkeypatch.setattr("os.path.exists", lambda p: True)
 
+    # Ejecutar la función
     from backend.app import wait_and_finalize
     wait_and_finalize(app, sim.id, str(summary), 0)
 
+    # Verificar que la simulación se actualizó
     with app.app_context():
         updated = app.Simulation.query.get(sim.id)
         assert updated.status in ("finished", "error")
+
 
