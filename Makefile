@@ -141,7 +141,6 @@ metadata:
 data:
   BACKEND_URL: "http://$$INGRESS_HOST"
 EOF
-
 	@echo "▶ Desplegando backend..."
 	kubectl apply -f k8s/backend/
 
