@@ -152,19 +152,19 @@ EOF
 
 	@echo "▶ Servicios desplegados"
 	kubectl get svc -n $(NAMESPACE)
-# 	@echo "▶ Aplicando manifiestos Kubernetes..."
-# 	kubectl apply -f k8s/namespace.yaml
-# 	kubectl apply -f k8s/postgres/
-# 	@echo "▶ Esperando a que el Postgres esté listo..."
-# 	sleep 20
-# 	@echo "▶ Desplegando backend..."
-# 	kubectl apply -f k8s/backend/
-# 	@echo "▶ Desplegando frontend..."
-# 	kubectl apply -f k8s/frontend/
-# 	@echo "▶ Esperando a que el LoadBalancer frontend esté listo..."
-# 	sleep 10
-# 	@echo "▶ Servicios aplicacion desplegados..."
-# 	kubectl get svc -n $(NAMESPACE)
+#@echo "▶ Aplicando manifiestos Kubernetes..."
+#kubectl apply -f k8s/namespace.yaml
+#kubectl apply -f k8s/postgres/
+#@echo "▶ Esperando a que el Postgres esté listo..."
+#sleep 20
+#@echo "▶ Desplegando backend..."
+#kubectl apply -f k8s/backend/
+#@echo "▶ Desplegando frontend..."
+#kubectl apply -f k8s/frontend/
+#@echo "▶ Esperando a que el LoadBalancer frontend esté listo..."
+#sleep 10
+#@echo "▶ Servicios aplicacion desplegados..."
+#kubectl get svc -n $(NAMESPACE)
 
 deploy-carga:
 	@echo "▶ Desplegando InfluxDB..."
