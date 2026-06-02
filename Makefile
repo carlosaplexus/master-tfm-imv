@@ -153,7 +153,6 @@ EOF
 	@echo "▶ Servicios desplegados"
 	kubectl get svc -n $(NAMESPACE)
 
-
 # 	@echo "▶ Aplicando manifiestos Kubernetes..."
 # 	kubectl apply -f k8s/namespace.yaml
 # 	kubectl apply -f k8s/postgres/
@@ -239,8 +238,6 @@ EOF
 	echo "Job creado: $$JOB_NAME"; \
 	echo "▶ Esperando a que el Job termine..."; \
 	kubectl wait --for=condition=complete job/$$JOB_NAME -n imv-simulacion --timeout=1h
-
-
 
 	@echo "▶ Pruebas de carga completadas."	
 	@echo "▶ Servicios desplegados y pruebas ejecutadas"
