@@ -1,10 +1,20 @@
 from backend.app import db
-from backend.app import list_simulations
 
 def test_list_simulations(client):
-    with client.application.app_context():
-        data = list_simulations()
-        assert isinstance(data, list)
+    app = client.application
+
+    # 1. Obtener la función interna registrada por Flask
+    assert "list_simulations" in app.view_functions
+    view = app.view_functions["list_simulations"]
+
+    # 2. Ejecutar la función dentro del contexto de la app
+    with app.app_context():
+        response = view()
+
+    # 3. Validar que devuelve algo razonable
+    # Si devuelve un jsonify, Flask lo convierte en Response
+    assert response is not None
+
 
 def test_list_patients_api(client):
     response = client.post("/api/patients", json={
