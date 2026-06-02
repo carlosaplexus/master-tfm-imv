@@ -1,5 +1,9 @@
 from backend.app import db
 
+def test_list_simulations(client):
+    res = client.get("/api/simulations")
+    assert res.status_code == 200
+
 def test_list_patients_api(client):
     response = client.post("/api/patients", json={
         "device_id": "dev1",
@@ -55,4 +59,33 @@ def test_run_simulation_success(client, monkeypatch):
     assert "simulation" in data
     assert data["simulation"]["status"] == "running"
 
+def test_wait_and_finalize(client, monkeypatch, tmp_path):
+    app = client.application
+
+    # Crear simulación
+    with app.app_context():
+        sim = app.Simulation(
+            scenario="escenario_1",
+            duration=0,
+            avg_latency_ms=0,
+            vus=0,
+            throughput=0,
+            status="running"
+        )
+        db.session.add(sim)
+        db.session.commit()
+
+    # Crear archivo summary falso
+    summary = tmp_path / "summary.json"
+    summary.write_text('{"metrics": {}}')
+
+    # Mockear subprocess
+    monkeypatch.setattr("os.path.exists", lambda p: True)
+
+    from backend.app import wait_and_finalize
+    wait_and_finalize(app, sim.id, str(summary), 0)
+
+    with app.app_context():
+        updated = app.Simulation.query.get(sim.id)
+        assert updated.status in ("finished", "error")
 

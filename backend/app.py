@@ -156,8 +156,7 @@ def create_app(test_config=None):
 
     # ==========================================================
     # ENDPOINTS PACIENTES
-    # ==========================================================
-    # pragma: cover
+    # ========================================================== 
     @app.post("/api/patients")
     def register_patient():
         data = request.get_json(silent=True) or {}
@@ -191,8 +190,7 @@ def create_app(test_config=None):
         except Exception:
             db.session.rollback()
             return jsonify({"error": "Error interno"}), 500
-
-    # pragma: cover
+  
     @app.get("/api/patients")
     def list_patients():
         limit = int(request.args.get("limit", 200))
@@ -205,8 +203,7 @@ def create_app(test_config=None):
         response.headers["X-Total-Count"] = str(total)
         response.headers["Cache-Control"] = "no-store"
         return response
-
-    # pragma: cover
+   
     @app.get("/api/patients/max-seq/<device_id>")
     def get_max_seq(device_id):
         max_seq = db.session.query(func.max(Patient.device_victim_seq)).filter_by(device_id=device_id).scalar()
@@ -225,7 +222,6 @@ def create_app(test_config=None):
         "escenario_4": "imv_escenario4.js",
     }
 
-    # pragma: cover
     @app.post("/api/simulations")
     def run_simulation():
         data = request.get_json(silent=True) or {}
@@ -390,7 +386,6 @@ def create_app(test_config=None):
 
     # return app
 
-# pragma: cover
 def wait_and_finalize(app, sim_id, summary_path, start_time):
     with app.app_context():
         process = ACTIVE_SIMULATIONS.get(sim_id)
@@ -446,7 +441,6 @@ def wait_and_finalize(app, sim_id, summary_path, start_time):
 
         print(f"🏁 Simulación {sim_id} finalizada y guardada en BD")
 
-    # pragma: cover
     @app.post("/api/simulations/<int:sim_id>/cancel")
     def cancel_simulation(sim_id):
         sim = Simulation.query.get(sim_id)
@@ -470,13 +464,13 @@ def wait_and_finalize(app, sim_id, summary_path, start_time):
 
         return jsonify({"message": "Simulación cancelada", "simulation": sim.to_dict()})
 
-    # pragma: cover
+    
     @app.get("/api/simulations")
     def list_simulations():
         sims = Simulation.query.order_by(Simulation.created_at.desc()).all()
         return jsonify([s.to_dict() for s in sims])
 
-    # pragma: cover
+    
     @app.get("/api/simulations/<int:sim_id>")
     def get_simulation(sim_id):
         sim = Simulation.query.get(sim_id)
