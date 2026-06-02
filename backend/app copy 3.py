@@ -280,50 +280,6 @@ def create_app(test_config=None):
         ).start()
 
         return jsonify({"message": "Simulación iniciada", "simulation": sim.to_dict()}), 201
-    
-    @app.post("/api/simulations/<int:sim_id>/cancel")
-    def cancel_simulation(sim_id):
-        sim = Simulation.query.get(sim_id)
-        if not sim:
-            return jsonify({"error": "Simulación no encontrada"}), 404
-
-        if sim.status != "running":
-            return jsonify({"error": "La simulación no está en ejecución"}), 400
-
-        process = ACTIVE_SIMULATIONS.get(sim_id)
-        if process:
-            try:
-                process.terminate()
-            except Exception as e:
-                return jsonify({"error": f"No se pudo detener k6: {str(e)}"}), 500
-
-            ACTIVE_SIMULATIONS.pop(sim_id, None)
-
-        sim.status = "cancelled"
-        db.session.commit()
-
-        return jsonify({"message": "Simulación cancelada", "simulation": sim.to_dict()})
-    
-    @app.get("/api/simulations")
-    def list_simulations():
-        sims = Simulation.query.order_by(Simulation.created_at.desc()).all()
-        return jsonify([s.to_dict() for s in sims])
-    
-    @app.get("/api/simulations/<int:sim_id>")
-    def get_simulation(sim_id):
-        sim = Simulation.query.get(sim_id)
-        if not sim:
-            return jsonify({"error": "Simulación no encontrada"}), 404
-        return jsonify(sim.to_dict())
-
-    @app.route("/api/simulations", methods=["OPTIONS"])
-    def simulations_options():
-        response = jsonify({})
-        response.headers["Access-Control-Allow-Origin"] = "*"
-        response.headers["Access-Control-Allow-Methods"] = "GET, POST, OPTIONS"
-        response.headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization"
-        return response, 204
-
     return app
     
 def wait_and_finalize(app, sim_id, summary_path, start_time):
@@ -380,6 +336,43 @@ def wait_and_finalize(app, sim_id, summary_path, start_time):
         ACTIVE_SIMULATIONS.pop(sim_id, None)
 
         print(f"🏁 Simulación {sim_id} finalizada y guardada en BD")
+
+    @app.post("/api/simulations/<int:sim_id>/cancel")
+    def cancel_simulation(sim_id):
+        sim = Simulation.query.get(sim_id)
+        if not sim:
+            return jsonify({"error": "Simulación no encontrada"}), 404
+
+        if sim.status != "running":
+            return jsonify({"error": "La simulación no está en ejecución"}), 400
+
+        process = ACTIVE_SIMULATIONS.get(sim_id)
+        if process:
+            try:
+                process.terminate()
+            except Exception as e:
+                return jsonify({"error": f"No se pudo detener k6: {str(e)}"}), 500
+
+            ACTIVE_SIMULATIONS.pop(sim_id, None)
+
+        sim.status = "cancelled"
+        db.session.commit()
+
+        return jsonify({"message": "Simulación cancelada", "simulation": sim.to_dict()})
+
+    
+    @app.get("/api/simulations")
+    def list_simulations():
+        sims = Simulation.query.order_by(Simulation.created_at.desc()).all()
+        return jsonify([s.to_dict() for s in sims])
+
+    
+    @app.get("/api/simulations/<int:sim_id>")
+    def get_simulation(sim_id):
+        sim = Simulation.query.get(sim_id)
+        if not sim:
+            return jsonify({"error": "Simulación no encontrada"}), 404
+        return jsonify(sim.to_dict())
 
 
 # ==========================================================
