@@ -120,8 +120,6 @@ pipeline {
         stage('Aplicar manifiestos Kubernetes') {
             steps {
                 sh 'make deploy'
-            }
-            steps {
                 sh 'make deploy-carga'
             }
         }    
