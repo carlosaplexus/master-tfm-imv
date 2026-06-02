@@ -15,7 +15,6 @@ TEMPLATE = """
   <meta charset="utf-8">
   <title>Simulación de carga digital en IMV</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
 
   <style>
     :root {
@@ -46,8 +45,6 @@ TEMPLATE = """
     .triage-verde { color: green; font-weight: bold; }
     .toggle-theme { cursor: pointer; background: white; color: black; padding: 0.3rem 0.6rem; border-radius: 5px; }
     pre { background: #111; color: #eee; padding: 0.5rem; overflow-x: auto; max-height: 200px; }
-    #sim-table tbody tr { color: #111 !important; } 
-    #sim-table tbody tr td { color: #111 !important; }
 
     .pagination { margin-top: 1rem; display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; }
     .pagination input { width: 60px; }
@@ -71,52 +68,31 @@ TEMPLATE = """
 
 <div class="container" id="simulaciones">
   <h2>Simulaciones de carga</h2>
-
   <form onsubmit="startSimulation(event)">
-    <label>Escenario de simulación:</label>
-    <select id="scenario">
-      <option value="escenario_1">Escenario 1 - Explosion</option>
-      <option value="escenario_2">Escenario 2 - Avalancha</option>
-      <option value="escenario_3">Escenario 3 - Otra</option>
-      <option value="escenario_4">Escenario 4 - Stress</option>
-    </select>
-
-    <button id="btn-simular" type="submit">Iniciar simulación</button>
-    <!-- Loader oculto por defecto -->
-    <span id="sim-loader" style="display:none; margin-left:10px; font-size:1.4rem;">⏳</span>  
-    <button id="btn-stop" type="button"
-            onclick="stopSimulation()"
-            style="display:none; margin-left:10px; background:#ff4d4d; color:white;">
-      ⛔ Parar simulación
-    </button>      
+    <label>Generadores:</label>
+    <input type="number" id="num_generators" value="3" min="1" max="50">
+    <label>Pacientes por generador:</label>
+    <input type="number" id="patients_per_generator" value="10000" min="1">
+    <button type="submit">Iniciar simulación</button>
   </form>
+  <p id="sim-result"></p>
 
-  <div id="sim-result" style="margin-top:10px;"></div>
-
-  <div id="sim-history-container" style="display:none; margin-top:20px;">
-
-    <div class="historial" style="display:flex; justify-content:space-between; align-items:center; width:100%; margin-top:10px;">
-      <h3 style="margin-top:20px;">Historial de simulaciones</h3>
-
-      <!-- Botón de refresco estilo tabla de historial -->
-      <button onclick="loadSimulations()" style="font-size:1.2rem; float:right;">🔄</button>
-    </div>
-    <table id="sim-table" style="margin-top:-10px;">
-      <thead>
-        <tr>
-          <th>Fecha-Hora</th>
-          <th>Escenario</th>
-          <th>Duración (s)</th>
-          <th>Latencia media (ms)</th>
-          <th>VUs</th>
-          <th>Throughput (req/s)</th>
-          <th>Estado</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
-  </div>
+  <h3>Estado de simulaciones</h3>
+  <button onclick="loadSimulations()">Actualizar estado</button>
+  <table id="sim-table">
+    <thead>
+      <tr>
+        <th>Job</th>
+        <th>Estado</th>
+        <th>Creado</th>
+        <th>Historial</th>
+        <th>Pods / Logs</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
 </div>
+
 <div class="container" id="pacientes">
   <h2>Pacientes recibidos</h2>
 
@@ -175,165 +151,59 @@ function toggleTheme() {
   html.dataset.theme = html.dataset.theme === "light" ? "dark" : "light";
 }
 
-let currentSimulationId = null;
-
 async function startSimulation(e) {
   e.preventDefault();
-
-  const scenario = document.getElementById("scenario").value;
-  const btn = document.getElementById("btn-simular");
-  const loader = document.getElementById("sim-loader");
-  const stopBtn = document.getElementById("btn-stop");
-
-  // UI: bloquear botón + mostrar loader + mostrar botón de parar
-  btn.disabled = true;
-  btn.innerText = "Simulando...";
-  loader.style.display = "inline-block";
-  stopBtn.style.display = "inline-block";
-
-  document.getElementById("sim-result").innerHTML =
-    `<div style="background:#fff7cc; padding:10px; border-radius:6px; color:#856404;">
-       ⏳ Ejecutando simulación...
-     </div>`;
+  const num = document.getElementById("num_generators").value;
+  const per = document.getElementById("patients_per_generator").value;
 
   const res = await fetch("{{ backend }}/api/simulations", {
     method: "POST",
     headers: {"Content-Type": "application/json"},
-    body: JSON.stringify({ scenario })
+    body: JSON.stringify({
+      num_generators: parseInt(num),
+      patients_per_generator: parseInt(per)
+    })
   });
 
   const data = await res.json();
-
-  // Si ya hay una simulación en curso
-  if (res.status === 409) {
-    document.getElementById("sim-result").innerHTML =
-      `<div style="background:#f8d4d4; padding:10px; border-radius:6px; color:#721c24;">
-         ❌ Ya hay una simulación en ejecución. Espera a que termine.
-       </div>`;
-    resetSimulationUI();
-    return;
-  }
-
-  // Guardamos ID de la simulación para poder cancelarla
-  currentSimulationId = data.simulation?.id || null;
-
-  // IMPORTANTE: NO mostrar mensaje de éxito aquí
-  // IMPORTANTE: NO llamar a resetSimulationUI()
-  // IMPORTANTE: NO actualizar historial aquí
-
-  // Esperar a que el backend termine k6
-  waitForSimulationToFinish(currentSimulationId);
-}
-
-function resetSimulationUI() {
-  const btn = document.getElementById("btn-simular");
-  const loader = document.getElementById("sim-loader");
-  const stopBtn = document.getElementById("btn-stop");
-
-  btn.disabled = false;
-  btn.innerText = "Iniciar simulación";
-  loader.style.display = "none";
-  stopBtn.style.display = "none";
-
-  currentSimulationId = null;
-}
-
-async function stopSimulation() {
-  if (!currentSimulationId) return;
-
-  const res = await fetch(`{{ backend }}/api/simulations/${currentSimulationId}/cancel`, {
-    method: "POST"
-  });
-
-  const data = await res.json();
-
-  document.getElementById("sim-result").innerHTML =
-    `<div style="background:#f8d4d4; padding:10px; border-radius:6px; color:#721c24;">
-       ⛔ Simulación cancelada.
-     </div>`;
-
+  document.getElementById("sim-result").innerText =
+    res.ok ? `Simulación lanzada: ${data.jobs.join(", ")}` : `Error: ${JSON.stringify(data)}`;
   loadSimulations();
-  resetSimulationUI();
 }
 
 async function loadSimulations() {
   const tbody = document.querySelector("#sim-table tbody");
-  const container = document.getElementById("sim-history-container");
-
   tbody.innerHTML = "";
-
   try {
-    const res = await fetch("{{ backend }}/api/simulations");
+    const res = await fetch("{{ backend }}/api/simulations/status");
     const data = await res.json();
-
-    if (!data || data.length === 0) {
-      container.style.display = "none";
-      return;
-    }
-
-    container.style.display = "block";
 
     data.forEach(sim => {
       const tr = document.createElement("tr");
+      const history = sim.history ? `
+        ID: ${sim.history.id}<br>
+        Generadores: ${sim.history.num_generators}<br>
+        Pacientes/gen: ${sim.history.patients_per_generator}<br>
+        Estado hist.: ${sim.history.status}
+      ` : "—";
 
-      const color =
-        sim.status === "completed" ? "#d4f8d4" :
-        sim.status === "error" ? "#f8d4d4" :
-        sim.status === "cancelled" ? "#ffe0b3" :
-        "#fff7cc"; // running
-
-      tr.style.background = color;
+      const podsHtml = sim.pods.map(p => `
+        <b>${p.pod_name}</b> (${p.phase})<br>
+        <pre>${p.log || ""}</pre>
+      `).join("<hr>");
 
       tr.innerHTML = `
-        <td>${sim.created_at}</td>
-        <td>${sim.scenario}</td>
-        <td>${sim.duration.toFixed(1)}</td>
-        <td>${sim.avg_latency_ms.toFixed(1)}</td>
-        <td>${sim.vus}</td>
-        <td>${sim.throughput.toFixed(1)}</td>
+        <td>${sim.job_name}</td>
         <td>${sim.status}</td>
+        <td>${sim.created_at || "—"}</td>
+        <td>${history}</td>
+        <td>${podsHtml}</td>
       `;
-
       tbody.appendChild(tr);
     });
-
   } catch (e) {
-    container.style.display = "none";
+    tbody.innerHTML = "<tr><td colspan='5'>Error al cargar simulaciones</td></tr>";
   }
-}
-
-function waitForSimulationToFinish(simId) {
-  const interval = setInterval(async () => {
-    const res = await fetch(`{{ backend }}/api/simulations/${simId}`);
-    const sim = await res.json();
-
-    if (sim.status !== "running") {
-      clearInterval(interval);
-
-      // Mostrar resultado final
-      if (sim.status === "completed") {
-        document.getElementById("sim-result").innerHTML =
-          `<div style="background:#d4f8d4; padding:10px; border-radius:6px; color:#155724;">
-             ✅ Simulación completada.
-           </div>`;
-      } else if (sim.status === "cancelled") {
-        document.getElementById("sim-result").innerHTML =
-          `<div style="background:#ffe0b3; padding:10px; border-radius:6px; color:#8a6d3b;">
-             ⛔ Simulación cancelada.
-           </div>`;
-      } else {
-        document.getElementById("sim-result").innerHTML =
-          `<div style="background:#f8d4d4; padding:10px; border-radius:6px; color:#721c24;">
-             ❌ Error en la simulación.
-           </div>`;
-      }
-
-      // Ahora sí: actualizar historial y restaurar UI
-      loadSimulations();
-      resetSimulationUI();
-      loadPatients();
-    }
-  }, 1000);
 }
 
 async function loadPatients() {

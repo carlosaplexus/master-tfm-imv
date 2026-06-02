@@ -1,6 +1,12 @@
 import logging
+import threading
 import uuid
 import os
+import json
+import subprocess
+import tempfile
+import time
+
 from datetime import datetime
 from flask import Flask, request, jsonify, g
 from flask_sqlalchemy import SQLAlchemy
@@ -8,10 +14,14 @@ from sqlalchemy import func
 from kubernetes import client, config
 from flask_cors import CORS
 
+# Diccionario global: simulation_id → subprocess.Popen
+ACTIVE_SIMULATIONS = {}
+
 # ==========================================================
 # SQLAlchemy sin inicializar (para permitir app factory)
 # ==========================================================
 db = SQLAlchemy()
+
 
 # ==========================================================
 # MODELOS (fuera de create_app)
@@ -64,19 +74,24 @@ class Simulation(db.Model):
     __tablename__ = "simulations"
 
     id = db.Column(db.BigInteger, primary_key=True, autoincrement=True)
-    job_name = db.Column(db.String, nullable=False, unique=True)
-    num_generators = db.Column(db.Integer, nullable=False)
-    patients_per_generator = db.Column(db.Integer, nullable=False)
     created_at = db.Column(db.DateTime, nullable=False, server_default=func.now())
-    status = db.Column(db.String, nullable=False, default="created")
+
+    scenario = db.Column(db.String, nullable=False)
+    duration = db.Column(db.Float, nullable=False)
+    avg_latency_ms = db.Column(db.Float, nullable=False)
+    vus = db.Column(db.Integer, nullable=False)
+    throughput = db.Column(db.Float, nullable=False)
+    status = db.Column(db.String, default="running")
 
     def to_dict(self):
         return {
             "id": self.id,
-            "job_name": self.job_name,
-            "num_generators": self.num_generators,
-            "patients_per_generator": self.patients_per_generator,
             "created_at": self.created_at.isoformat(),
+            "scenario": self.scenario,
+            "duration": self.duration,
+            "avg_latency_ms": self.avg_latency_ms,
+            "vus": self.vus,
+            "throughput": self.throughput,
             "status": self.status,
         }
 
@@ -107,7 +122,6 @@ def create_app(test_config=None):
 
     # Kubernetes config (solo carga objetos, no ejecuta nada)
     K8S_NAMESPACE = os.getenv("K8S_NAMESPACE", "imv-simulacion")
-    GENERATOR_IMAGE = os.getenv("GENERATOR_IMAGE", "tuimagen/generador:latest")
     BACKEND_URL_ENV = os.getenv("BACKEND_URL", "http://backend:5001/api/patients")
 
     try:
@@ -196,118 +210,271 @@ def create_app(test_config=None):
         return jsonify({"max_seq": max_seq or 0})
 
     # ==========================================================
-    # ENDPOINTS SIMULACIONES (K8S)
+    # ENDPOINTS SIMULACIONES CON K6 EN K8S
     # ==========================================================
+
+    K6_SCRIPTS_DIR = os.getenv("K6_SCRIPTS_DIR", "./escenarios")
+
+    SCENARIOS = {
+        "escenario_1": "imv_escenario1.js",
+        "escenario_2": "imv_escenario2.js",
+        "escenario_3": "imv_escenario3.js",
+        "escenario_4": "imv_escenario4.js",
+    }
+
     @app.post("/api/simulations")
-    def create_simulation():
-        if not k8s_batch:
-            return jsonify({"error": "Kubernetes no disponible"}), 500
-
+    def run_simulation():
         data = request.get_json(silent=True) or {}
-        num_generators = int(data.get("num_generators", 1))
-        patients_per_generator = int(data.get("patients_per_generator", 1000))
+        scenario = data.get("scenario")
 
-        jobs = []
+        if scenario not in SCENARIOS:
+            return jsonify({"error": "Escenario no válido"}), 400
 
-        for i in range(num_generators):
-            job_name = f"imv-generator-{int(datetime.utcnow().timestamp())}-{i}"
+        # Bloqueo: solo una simulación a la vez
+        running = Simulation.query.filter_by(status="running").first()
+        if running:
+            return jsonify({"error": "Ya hay una simulación en ejecución"}), 409
 
-            job = client.V1Job(
-                metadata=client.V1ObjectMeta(
-                    name=job_name,
-                    namespace=K8S_NAMESPACE,
-                    labels={"app": "generator", "simulation": "imv"}
-                ),
-                spec=client.V1JobSpec(
-                    template=client.V1PodTemplateSpec(
-                        metadata=client.V1ObjectMeta(labels={"app": "generator", "simulation": "imv"}),
-                        spec=client.V1PodSpec(
-                            restart_policy="Never",
-                            containers=[
-                                client.V1Container(
-                                    name="generator",
-                                    image=GENERATOR_IMAGE,
-                                    env=[
-                                        client.V1EnvVar(name="BACKEND_URL", value=BACKEND_URL_ENV),
-                                        client.V1EnvVar(name="TOTAL_PACIENTES", value=str(patients_per_generator))
-                                    ]
-                                )
-                            ]
-                        )
-                    ),
-                    backoff_limit=0
-                )
-            )
+        script_path = os.path.join(K6_SCRIPTS_DIR, SCENARIOS[scenario])
 
-            k8s_batch.create_namespaced_job(namespace=K8S_NAMESPACE, body=job)
-
-            sim = Simulation(
-                job_name=job_name,
-                num_generators=1,
-                patients_per_generator=patients_per_generator,
-                status="created",
-            )
-            db.session.add(sim)
-            jobs.append(job_name)
-
+        # Crear simulación en estado running
+        sim = Simulation(
+            scenario=scenario,
+            duration=0,
+            avg_latency_ms=0,
+            vus=0,
+            throughput=0,
+            status="running"
+        )
+        db.session.add(sim)
         db.session.commit()
 
-        return jsonify({"message": "Simulación lanzada", "jobs": jobs}), 201
+        # Archivo temporal para summary
+        with tempfile.NamedTemporaryFile(suffix=".json", delete=False) as tmp:
+            summary_path = tmp.name
 
-    @app.get("/api/simulations/status")
-    def simulations_status():
-        if not k8s_batch or not k8s_core:
-            return jsonify({"error": "Kubernetes no disponible"}), 500
+        cmd = [
+            "k6", "run",
+            "--summary-export", summary_path,
+            script_path
+        ]
 
-        jobs = k8s_batch.list_namespaced_job(namespace=K8S_NAMESPACE, label_selector="simulation=imv")
-        result = []
+        # Lanzar proceso k6 (NO bloqueante)
+        process = subprocess.Popen(cmd)
+        ACTIVE_SIMULATIONS[sim.id] = process
 
-        for job in jobs.items:
-            job_name = job.metadata.name
-            status = "unknown"
-            if job.status.active:
-                status = "running"
-            if job.status.succeeded:
-                status = "succeeded"
-            if job.status.failed:
-                status = "failed"
+        start_time = time.time()
 
-            sim = Simulation.query.filter_by(job_name=job_name).first()
-            if sim:
-                sim.status = status
+        # Lanzar hilo para esperar a que termine k6 sin bloquear Flask
+        threading.Thread(
+            target=wait_and_finalize,
+            args=(sim.id, summary_path, start_time),
+            daemon=True
+        ).start()
 
-            pods = k8s_core.list_namespaced_pod(
-                namespace=K8S_NAMESPACE,
-                label_selector=f"job-name={job_name}"
-            )
-            pod_logs = []
-            for pod in pods.items:
-                try:
-                    log_text = k8s_core.read_namespaced_pod_log(
-                        name=pod.metadata.name,
-                        namespace=K8S_NAMESPACE,
-                        tail_lines=20
-                    )
-                except Exception:
-                    log_text = ""
-                pod_logs.append({
-                    "pod_name": pod.metadata.name,
-                    "phase": pod.status.phase,
-                    "log": log_text,
-                })
+        return jsonify({"message": "Simulación iniciada", "simulation": sim.to_dict()}), 201
+  
+    
+    # @app.post("/api/simulations")
+    # def create_simulation():
+    #     if not k8s_batch:
+    #         return jsonify({"error": "Kubernetes no disponible"}), 500
 
-            result.append({
-                "job_name": job_name,
-                "status": status,
-                "created_at": job.metadata.creation_timestamp.isoformat() if job.metadata.creation_timestamp else None,
-                "pods": pod_logs,
-                "history": sim.to_dict() if sim else None,
-            })
+    #     data = request.get_json(silent=True) or {}
+    #     num_generators = int(data.get("num_generators", 1))
+    #     patients_per_generator = int(data.get("patients_per_generator", 1000))
+
+    #     jobs = []
+
+    #     for i in range(num_generators):
+    #         job_name = f"imv-generator-{int(datetime.utcnow().timestamp())}-{i}"
+
+    #         job = client.V1Job(
+    #             metadata=client.V1ObjectMeta(
+    #                 name=job_name,
+    #                 namespace=K8S_NAMESPACE,
+    #                 labels={"app": "generator", "simulation": "imv"}
+    #             ),
+    #             spec=client.V1JobSpec(
+    #                 template=client.V1PodTemplateSpec(
+    #                     metadata=client.V1ObjectMeta(labels={"app": "generator", "simulation": "imv"}),
+    #                     spec=client.V1PodSpec(
+    #                         restart_policy="Never",
+    #                         containers=[
+    #                             client.V1Container(
+    #                                 name="generator",
+    #                                 image=GENERATOR_IMAGE,
+    #                                 env=[
+    #                                     client.V1EnvVar(name="BACKEND_URL", value=BACKEND_URL_ENV),
+    #                                     client.V1EnvVar(name="TOTAL_PACIENTES", value=str(patients_per_generator))
+    #                                 ]
+    #                             )
+    #                         ]
+    #                     )
+    #                 ),
+    #                 backoff_limit=0
+    #             )
+    #         )
+
+    #         k8s_batch.create_namespaced_job(namespace=K8S_NAMESPACE, body=job)
+
+    #         sim = Simulation(
+    #             job_name=job_name,
+    #             num_generators=1,
+    #             patients_per_generator=patients_per_generator,
+    #             status="created",
+    #         )
+    #         db.session.add(sim)
+    #         jobs.append(job_name)
+
+    #     db.session.commit()
+
+    #     return jsonify({"message": "Simulación lanzada", "jobs": jobs}), 201
+
+    # @app.get("/api/simulations/status")
+    # def simulations_status():
+    #     if not k8s_batch or not k8s_core:
+    #         return jsonify({"error": "Kubernetes no disponible"}), 500
+
+    #     jobs = k8s_batch.list_namespaced_job(namespace=K8S_NAMESPACE, label_selector="simulation=imv")
+    #     result = []
+
+    #     for job in jobs.items:
+    #         job_name = job.metadata.name
+    #         status = "unknown"
+    #         if job.status.active:
+    #             status = "running"
+    #         if job.status.succeeded:
+    #             status = "succeeded"
+    #         if job.status.failed:
+    #             status = "failed"
+
+    #         sim = Simulation.query.filter_by(job_name=job_name).first()
+    #         if sim:
+    #             sim.status = status
+
+    #         pods = k8s_core.list_namespaced_pod(
+    #             namespace=K8S_NAMESPACE,
+    #             label_selector=f"job-name={job_name}"
+    #         )
+    #         pod_logs = []
+    #         for pod in pods.items:
+    #             try:
+    #                 log_text = k8s_core.read_namespaced_pod_log(
+    #                     name=pod.metadata.name,
+    #                     namespace=K8S_NAMESPACE,
+    #                     tail_lines=20
+    #                 )
+    #             except Exception:
+    #                 log_text = ""
+    #             pod_logs.append({
+    #                 "pod_name": pod.metadata.name,
+    #                 "phase": pod.status.phase,
+    #                 "log": log_text,
+    #             })
+
+    #         result.append({
+    #             "job_name": job_name,
+    #             "status": status,
+    #             "created_at": job.metadata.creation_timestamp.isoformat() if job.metadata.creation_timestamp else None,
+    #             "pods": pod_logs,
+    #             "history": sim.to_dict() if sim else None,
+    #         })
+
+    #     db.session.commit()
+    #     return jsonify(result)
+
+    # return app
+
+def wait_and_finalize(sim_id, summary_path, start_time):
+    with app.app_context():
+        process = ACTIVE_SIMULATIONS.get(sim_id)
+        if not process:
+            print("⚠️ No se encontró el proceso activo")
+            return
+
+        print(f"⏳ Esperando a que termine k6 (simulación {sim_id})...")
+        process.wait()
+        end_time = time.time()
+        print(f"✔️ k6 ha terminado (simulación {sim_id})")
+
+        sim = Simulation.query.get(sim_id)
+        if not sim:
+            print("❌ Simulación no encontrada en BD")
+            return
+
+        # Si fue cancelada, no procesamos summary
+        if sim.status == "cancelled":
+            print("⛔ Simulación cancelada, no se procesa summary")
+            ACTIVE_SIMULATIONS.pop(sim_id, None)
+            return
+
+        # Leer summary
+        try:
+            with open(summary_path, "r") as f:
+                summary = json.load(f)
+        except Exception as e:
+            print(f"❌ Error leyendo summary: {e}")
+            sim.status = "error"
+            db.session.commit()
+            ACTIVE_SIMULATIONS.pop(sim_id, None)
+            return
+
+        metrics = summary.get("metrics", {})
+
+        # Duración real (k6 no la exporta en tu caso)
+        sim.duration = round(end_time - start_time, 2)
+
+        # Latencia media
+        sim.avg_latency_ms = metrics.get("http_req_duration", {}).get("avg", 0)
+
+        # VUs máximos
+        sim.vus = metrics.get("vus_max", {}).get("value", 0)
+
+        # Throughput (req/s)
+        sim.throughput = metrics.get("http_reqs", {}).get("rate", 0)
+
+        sim.status = "completed"
 
         db.session.commit()
-        return jsonify(result)
+        ACTIVE_SIMULATIONS.pop(sim_id, None)
 
-    return app
+        print(f"🏁 Simulación {sim_id} finalizada y guardada en BD")
+
+    @app.post("/api/simulations/<int:sim_id>/cancel")
+    def cancel_simulation(sim_id):
+        sim = Simulation.query.get(sim_id)
+        if not sim:
+            return jsonify({"error": "Simulación no encontrada"}), 404
+
+        if sim.status != "running":
+            return jsonify({"error": "La simulación no está en ejecución"}), 400
+
+        process = ACTIVE_SIMULATIONS.get(sim_id)
+        if process:
+            try:
+                process.terminate()
+            except Exception as e:
+                return jsonify({"error": f"No se pudo detener k6: {str(e)}"}), 500
+
+            ACTIVE_SIMULATIONS.pop(sim_id, None)
+
+        sim.status = "cancelled"
+        db.session.commit()
+
+        return jsonify({"message": "Simulación cancelada", "simulation": sim.to_dict()})
+
+    @app.get("/api/simulations")
+    def list_simulations():
+        sims = Simulation.query.order_by(Simulation.created_at.desc()).all()
+        return jsonify([s.to_dict() for s in sims])
+
+    @app.get("/api/simulations/<int:sim_id>")
+    def get_simulation(sim_id):
+        sim = Simulation.query.get(sim_id)
+        if not sim:
+            return jsonify({"error": "Simulación no encontrada"}), 404
+        return jsonify(sim.to_dict())
 
 
 # ==========================================================
