@@ -253,6 +253,13 @@ def create_app(test_config=None):
         with tempfile.NamedTemporaryFile(suffix=".json", delete=False) as tmp:
             summary_path = tmp.name
 
+        if app.config.get("TESTING"):
+            # No lanzar k6 ni hilos en tests
+            return jsonify({
+                "message": "Simulación iniciada (modo test)",
+                "simulation": sim.to_dict()
+            }), 201
+
         cmd = [
             "k6", "run",
             "--summary-export", summary_path,

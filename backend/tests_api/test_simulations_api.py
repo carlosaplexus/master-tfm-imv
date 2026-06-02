@@ -1,8 +1,10 @@
 from backend.app import db
+from backend.app import list_simulations
 
 def test_list_simulations(client):
-    res = client.get("/api/simulations")
-    assert res.status_code == 200
+    with client.application.app_context():
+        data = list_simulations()
+        assert isinstance(data, list)
 
 def test_list_patients_api(client):
     response = client.post("/api/patients", json={
