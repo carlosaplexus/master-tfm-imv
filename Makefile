@@ -129,8 +129,7 @@ deploy:
 	sleep 20
 
 	@echo "▶ Obteniendo hostname del Ingress..."
-	INGRESS_HOST=$$(kubectl get svc ingress-nginx -n ingress-nginx \
-		-o jsonpath='{.status.loadBalancer.ingress[0].hostname}'); \
+	INGRESS_HOST=$$(kubectl get svc ingress-nginx -n ingress-nginx -o jsonpath='{.status.loadBalancer.ingress[0].hostname}'); \
 	echo "Hostname: $$INGRESS_HOST"; \
 	echo "▶ Generando ConfigMap del frontend..."; \
 	cat > k8s/frontend/configmap.yaml <<EOF
