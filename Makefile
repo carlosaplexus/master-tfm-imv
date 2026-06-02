@@ -116,11 +116,18 @@ deploy:
 	@echo "▶ Desplegando ingress backend..."
 	kubectl apply -f k8s/backend-ingress/ingress.yaml
 
-	@echo "▶ Desplegando frontend..."
+	@echo "▶ Desplegando frontend..."	
 	kubectl apply -f k8s/frontend/
+
+	@echo "▶ Esperando que LoadBalancer del frontend estñe listo..."
+	sleep 20
 
 	@echo "▶ Servicios desplegados"
 	kubectl get svc -n $(NAMESPACE)
+
+# Solo si debo reiniciar
+# 	@echo "▶ Restart del frontend si existian configmaps previos"
+# 	kubectl rollout restart deploy frontend -n imv-simulacion
 
 deploy-carga:
 	@echo "▶ Desplegando InfluxDB..."
