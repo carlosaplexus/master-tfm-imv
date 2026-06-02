@@ -88,8 +88,12 @@ deploy:
 	@echo "▶ Esperando a que Postgres esté listo..."
 	sleep 20
 
+# 	@echo "▶ Desplegando Ingress Controller..."
+# 	kubectl apply -f k8s/ingress-nginx/
+
 	@echo "▶ Desplegando Ingress Controller..."
-	kubectl apply -f k8s/ingress-nginx/
+	kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.10.0/deploy/static/provider/cloud/deploy.yaml
+
 
 	@echo "▶ Esperando LoadBalancer del Ingress Controller..."
 	sleep 20
