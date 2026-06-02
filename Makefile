@@ -21,7 +21,6 @@ GENERATOR_IMAGE=$(REGISTRY)/generador:latest
 # 	docker cp unit-tests:/app/results ./
 # 	docker rm unit-tests || true
 
-
 test-unit:
 	mkdir -p results/unit results/api results/coverage
 	pytest backend/tests \
@@ -43,33 +42,11 @@ test-generador:
 		--junitxml=results/generador_result.xml \
 		--html=results/generador/index.html --self-contained-html
 
-# test-api:
-# 	docker stop apiserver || true
-# 	docker rm --force apiserver || true
-# 	docker stop api-tests || true
-# 	docker rm --force api-tests || true
-# 	docker network rm imv-test-api || true
-# 	docker network create imv-test-api || true
-# 	docker run -d --network imv-test-api --env PYTHONPATH=/app --name apiserver --env FLASK_APP=app/api.py -p 5001:5001 -w /app imv-app:latest flask run --host=0.0.0.0
-# 	docker run --network imv-test-api --name api-tests --env PYTHONPATH=/app --env BASE_URL=http://apiserver:5001/ -w /pp imv-app:latest pytest --junit-xml=results/api_result.xml --html=results/api/index.html --self-contained-html -m api  || true
-# 	docker cp api-tests:/app/results ./
-# 	docker stop apiserver || true
-# 	docker rm --force apiserver || true
-# 	docker stop api-tests || true
-# 	docker rm --force api-tests || true
-# 	docker network rm imv-test-api || true
-# test-api:
-# 	@echo "▶ Ejecutando tests de API..."
-# 	docker run --name api-tests --env PYTHONPATH=/app -w /app backend/tests_api:latest sh -c "mkdir -p results/unit results/api results/coverage && pytest backend/tests_api --junit-xml=results/api_result.xml --html=results/api/index.html --self-contained-html || true"
-# 	docker cp api-tests:/app/results ./
-# 	docker rm api-tests || true
-
 test-e2e:
 	@echo "▶ Ejecutando Cypress..."
 	cd frontend && npx cypress run
 
 tests: test-unit test-api test-e2e
-
 
 # ================================
 # DOCKER BUILD & PUSH
@@ -88,7 +65,6 @@ push:
 	docker push $(FRONTEND_IMAGE)
 	docker push $(GENERATOR_IMAGE)
 
-
 # ================================
 # AWS ACADEMY LOGIN
 # ================================
@@ -98,19 +74,9 @@ aws-login:
 	aws sts get-caller-identity
 	aws eks update-kubeconfig --region $(AWS_REGION) --name $(CLUSTER_NAME)
 
-
 # ================================
 # DESPLIEGUE KUBERNETES
 # ================================
-
-# deploy:
-# 	@echo "▶ Aplicando manifiestos Kubernetes..."
-# 	kubectl apply -f k8s/namespace.yaml
-# 	kubectl apply -f k8s/postgres/
-# 	@echo "▶ Esperando a que el Postgres esté listo..."
-# 	sleep 20
-# 	kubectl apply -f k8s/backend/
-# 	kubectl apply -f k8s/frontend/
 
 deploy:
 	@echo "▶ Aplicando namespace..."
