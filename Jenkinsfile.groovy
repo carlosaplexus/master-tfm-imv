@@ -87,47 +87,47 @@ pipeline {
             }
         }
 
-        stage('Build Docker Images') {
-            steps {
-                sh 'make build'
-            }
-        }
+        // stage('Build Docker Images') {
+        //     steps {
+        //         sh 'make build'
+        //     }
+        // }
 
-        stage('Push Docker Images') {
-            environment {
-                DOCKERHUB = credentials('dockerhub-credentials')
-            }            
-            steps {
-                sh 'make push'
-            }
-        }
+        // stage('Push Docker Images') {
+        //     environment {
+        //         DOCKERHUB = credentials('dockerhub-credentials')
+        //     }            
+        //     steps {
+        //         sh 'make push'
+        //     }
+        // }
 
-        stage('Autenticacion en AWS Academy') {
-            steps {
-                withCredentials([file(credentialsId: 'aws-credentials-file', variable: 'AWS_CREDS')]) {
-                sh '''
-                    echo " "
-                    echo "▶ Configurando credenciales AWS Academy..."
+        // stage('Autenticacion en AWS Academy') {
+        //     steps {
+        //         withCredentials([file(credentialsId: 'aws-credentials-file', variable: 'AWS_CREDS')]) {
+        //         sh '''
+        //             echo " "
+        //             echo "▶ Configurando credenciales AWS Academy..."
 
-                    mkdir -p ~/.aws
-                    cp $AWS_CREDS ~/.aws/credentials
-                '''
-        }
-                sh 'make aws-login'
-            }
-        }
+        //             mkdir -p ~/.aws
+        //             cp $AWS_CREDS ~/.aws/credentials
+        //         '''
+        // }
+        //         sh 'make aws-login'
+        //     }
+        // }
 
-        stage('Aplicar manifiestos Kubernetes') {
-            steps {
-                sh 'make deploy'
-            }
-        }    
+        // stage('Aplicar manifiestos Kubernetes') {
+        //     steps {
+        //         sh 'make deploy'
+        //     }
+        // }    
 
-        stage('Obtener url pública aplicación') {
-            steps {
-                sh 'make urls'
-            }
-        }       
+        // stage('Obtener url pública aplicación') {
+        //     steps {
+        //         sh 'make urls'
+        //     }
+        // }       
     }
 
     post {

@@ -273,7 +273,7 @@ def create_app(test_config=None):
         ).start()
 
         return jsonify({"message": "Simulación iniciada", "simulation": sim.to_dict()}), 201
-  
+    return app
     
     # @app.post("/api/simulations")
     # def create_simulation():
@@ -478,7 +478,7 @@ def wait_and_finalize(sim_id, summary_path, start_time):
 
 
 # ==========================================================
-# MAIN (solo producción)
+# MAIN 
 # ==========================================================
 if __name__ == "__main__":
     app = create_app()
