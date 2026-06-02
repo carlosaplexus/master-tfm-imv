@@ -95,7 +95,8 @@ def test_wait_and_finalize(client, monkeypatch, tmp_path):
     # Verificar actualización
     with app.app_context():
         updated = app.Simulation.query.get(sim_id)
-        assert updated.status in ("finished", "error")
+        assert updated.status in ("completed", "error")
+
 
 
 
