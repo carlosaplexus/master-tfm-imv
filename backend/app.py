@@ -268,7 +268,7 @@ def create_app(test_config=None):
         # Lanzar hilo para esperar a que termine k6 sin bloquear Flask
         threading.Thread(
             target=wait_and_finalize,
-            args=(sim.id, summary_path, start_time),
+            args=(app, sim.id, summary_path, start_time),
             daemon=True
         ).start()
 
@@ -386,7 +386,7 @@ def create_app(test_config=None):
 
     # return app
 
-def wait_and_finalize(sim_id, summary_path, start_time):
+def wait_and_finalize(app, sim_id, summary_path, start_time):
     with app.app_context():
         process = ACTIVE_SIMULATIONS.get(sim_id)
         if not process:
