@@ -4,4 +4,5 @@ metadata:
   name: frontend-config
   namespace: imv-simulacion
 data:
-  BACKEND_URL: "http://__INGRESS_HOST__"
+  BACKEND_URL: "__BACKEND_URL__"
+

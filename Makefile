@@ -98,11 +98,17 @@ deploy:
 	@echo "▶ Esperando LoadBalancer del Ingress Controller..."
 	sleep 20
 
-	@echo "▶ Obteniendo hostname del Ingress..."
-	INGRESS_HOST=$$(kubectl get svc ingress-nginx -n ingress-nginx -o jsonpath='{.status.loadBalancer.ingress[0].hostname}'); \
-	echo "Hostname: $$INGRESS_HOST"; \
-	echo "▶ Generando ConfigMap del frontend..."; \
-	sed "s/__INGRESS_HOST__/$$INGRESS_HOST/" k8s/frontend/configmap-template.yaml > k8s/frontend/configmap.yaml
+# 	@echo "▶ Obteniendo hostname del Ingress..."
+# 	INGRESS_HOST=$$(kubectl get svc ingress-nginx -n ingress-nginx -o jsonpath='{.status.loadBalancer.ingress[0].hostname}'); \
+# 	echo "Hostname: $$INGRESS_HOST"; \
+# 	echo "▶ Generando ConfigMap del frontend..."; \
+# 	sed "s/__INGRESS_HOST__/$$INGRESS_HOST/" k8s/frontend/configmap-template.yaml > k8s/frontend/configmap.yaml
+
+	@echo "▶ Generando ConfigMap del frontend..."; \
+    INGRESS_HOST=$$(kubectl get svc ingress-nginx-controller -n ingress-nginx -o jsonpath='{.status.loadBalancer.ingress[0].hostname}'); \
+    echo "Hostname: $$INGRESS_HOST"; \
+    sed "s|__BACKEND_URL__|http://$$INGRESS_HOST|g" k8s/frontend/configmap-template.yaml > k8s/frontend/configmap.yaml
+
 	
 	@echo "▶ Desplegando backend..."
 	kubectl apply -f k8s/backend/
