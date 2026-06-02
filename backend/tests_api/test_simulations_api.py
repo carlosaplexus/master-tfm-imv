@@ -32,6 +32,10 @@ def test_run_simulation_conflict(client):
     with client.application.app_context():
         sim = client.application.Simulation(
             scenario="escenario_1",
+            duration=0,
+            avg_latency_ms=0,
+            vus=0,
+            throughput=0,
             status="running"
         )
         db.session.add(sim)
