@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: frontend-config
+  namespace: imv-simulacion
+data:
+  BACKEND_URL: "http://__INGRESS_HOST__"

@@ -98,15 +98,8 @@ deploy:
 	INGRESS_HOST=$$(kubectl get svc ingress-nginx -n ingress-nginx -o jsonpath='{.status.loadBalancer.ingress[0].hostname}'); \
 	echo "Hostname: $$INGRESS_HOST"; \
 	echo "▶ Generando ConfigMap del frontend..."; \
-	cat > k8s/frontend/configmap.yaml <<EOF
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: frontend-config
-  namespace: $(NAMESPACE)
-data:
-  BACKEND_URL: "http://$$INGRESS_HOST"
-EOF
+	sed "s/__INGRESS_HOST__/$$INGRESS_HOST/" k8s/frontend/configmap-template.yaml > k8s/frontend/configmap.yaml
+	
 	@echo "▶ Desplegando backend..."
 	kubectl apply -f k8s/backend/
 
