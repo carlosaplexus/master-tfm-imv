@@ -5,7 +5,7 @@ metadata:
   namespace: imv-simulacion
 spec:
   backoffLimit: 0
-  ttlSecondsAfterFinished: 3600
+  ttlSecondsAfterFinished: 30
   template:
     spec:
       restartPolicy: Never
