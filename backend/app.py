@@ -270,24 +270,38 @@ def create_app(test_config=None):
         ]
 
         # Lanzar proceso k6 (NO bloqueante)
-        #process = subprocess.Popen(cmd)
+        # #process = subprocess.Popen(cmd)
+        # process = subprocess.Popen(
+        #     cmd,
+        #     stdout=subprocess.PIPE,
+        #     stderr=subprocess.PIPE,
+        #     text=True
+        # )
+
+        # stdout, stderr = process.communicate()
+
+        # print("K6 STDOUT:", stdout)
+        # print("K6 STDERR:", stderr)
+
         process = subprocess.Popen(
             cmd,
             stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
             text=True
         )
 
-        stdout, stderr = process.communicate()
+        def stream_logs(proc):
+            for line in proc.stdout:
+                print("K6:", line.strip())
 
-        print("K6 STDOUT:", stdout)
-        print("K6 STDERR:", stderr)
+        # Hilo para imprimir logs de k6 en tiempo real
+        threading.Thread(target=stream_logs, args=(process,), daemon=True).start()
 
         ACTIVE_SIMULATIONS[sim.id] = process
 
         start_time = time.time()
 
-        # Lanzar hilo para esperar a que termine k6 sin bloquear Flask
+        # Hilo para esperar a que termine k6 y procesar el summary sin bloqueo de flask
         threading.Thread(
             target=wait_and_finalize,
             args=(app, sim.id, summary_path, start_time),
@@ -295,6 +309,7 @@ def create_app(test_config=None):
         ).start()
 
         return jsonify({"message": "Simulación iniciada", "simulation": sim.to_dict()}), 201
+
     
     @app.route("/api/simulations/<int:sim_id>/cancel", methods=["POST"])
     @cross_origin()
