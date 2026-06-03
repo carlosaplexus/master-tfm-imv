@@ -270,7 +270,19 @@ def create_app(test_config=None):
         ]
 
         # Lanzar proceso k6 (NO bloqueante)
-        process = subprocess.Popen(cmd)
+        #process = subprocess.Popen(cmd)
+        process = subprocess.Popen(
+            cmd,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True
+        )
+
+        stdout, stderr = process.communicate()
+
+        print("K6 STDOUT:", stdout)
+        print("K6 STDERR:", stderr)
+
         ACTIVE_SIMULATIONS[sim.id] = process
 
         start_time = time.time()
