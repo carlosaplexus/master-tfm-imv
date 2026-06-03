@@ -224,7 +224,7 @@ def create_app(test_config=None):
         "escenario_4": "imv_escenario4.js",
     }
 
-    @app.post("/api/simulations")
+    @app.route("/api/simulations", methods=["POST"])
     @cross_origin()
     def run_simulation():
         data = request.get_json(silent=True) or {}
@@ -284,7 +284,8 @@ def create_app(test_config=None):
 
         return jsonify({"message": "Simulación iniciada", "simulation": sim.to_dict()}), 201
     
-    @app.post("/api/simulations/<int:sim_id>/cancel")
+    @app.route("/api/simulations/<int:sim_id>/cancel", methods=["POST"])
+    @cross_origin()
     def cancel_simulation(sim_id):
         sim = Simulation.query.get(sim_id)
         if not sim:
@@ -307,13 +308,14 @@ def create_app(test_config=None):
 
         return jsonify({"message": "Simulación cancelada", "simulation": sim.to_dict()})
     
-    @app.get("/api/simulations")
+    @app.route("/api/simulations", methods=["GET"])
     @cross_origin()
     def list_simulations():
         sims = Simulation.query.order_by(Simulation.created_at.desc()).all()
         return jsonify([s.to_dict() for s in sims])
     
-    @app.get("/api/simulations/<int:sim_id>")
+    @app.route("/api/simulations/<int:sim_id>", methods=["GET"])
+    @cross_origin()
     def get_simulation(sim_id):
         sim = Simulation.query.get(sim_id)
         if not sim:
