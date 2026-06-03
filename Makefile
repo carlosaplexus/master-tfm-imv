@@ -54,9 +54,9 @@ tests: test-unit test-api test-e2e
 
 build:
 	@echo "▶ Construyendo imágenes Docker..."
-	docker build -t $(BACKEND_IMAGE) backend/
-	docker build -t $(FRONTEND_IMAGE) frontend/
-	docker build -t $(GENERATOR_IMAGE) generador/
+	docker build --no-cache -t $(BACKEND_IMAGE) backend/
+	docker build --no-cache -t $(FRONTEND_IMAGE) frontend/
+	docker build --no-cache -t $(GENERATOR_IMAGE) generador/
 
 push:
 	@echo "▶ Subiendo imágenes a DOCKERHUB..."
