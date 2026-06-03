@@ -21,6 +21,7 @@
 
 5. Desplegar todo en EKS
         make deploy
+        make deploy carga - escenario1 a grafana
 
 6. Obtener la URL del frontend
         make url
@@ -35,6 +36,7 @@
         make push
         make aws-login
         make deploy
+        make deploy-carga
         make url
 
 + Test específicos

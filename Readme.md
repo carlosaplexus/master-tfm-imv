@@ -1,4 +1,4 @@
-NOTAS TECNICAS DEL TRABAJO
+NOTAS TECNICAS DEL TRABAJO - DIARIO TECNICO
 
 Plataforma de Simulación Digital IMV (EKS)
 
@@ -55,21 +55,49 @@ Generador
 2. Estructura de carpetas
 
 k8s/
-├─ namespace.yaml
-├─ postgres/
-│   ├─ secret.yaml
-│   ├─ pvc.yaml
-│   ├─ deployment.yaml
-│   ├─ service.yaml
-├─ backend/
-│   ├─ rbac.yaml
-│   ├─ configmap.yaml
-│   ├─ deployment.yaml
-│   ├─ service.yaml
-├─ frontend/
-│   ├─ configmap.yaml
-│   ├─ deployment.yaml
-│   ├─ service.yaml
+│   namespace.yaml
+│
+├───backend
+│       configmap.yaml
+│       deployment.yaml
+│       service.yaml
+│
+├───backend-ingress
+│       ingress.yaml
+│
+├───carga
+│   ├───grafana
+│   │   │   confmap-dshb-provider.yaml
+│   │   │   grafana-datasource.yaml
+│   │   │   grafana-role-binding.yaml
+│   │   │   grafana-role.yaml
+│   │   │   grafana-sa.yaml
+│   │   │   grafana.yaml
+│   │   │   service-grafana.yaml
+│   │   │
+│   │   └───json
+│   │           k6-dashboard1.json
+│   │
+│   ├───influxdb
+│   │       influsxdb.yaml
+│   │       service-influxdb.yaml
+│   │
+│   └───k6
+│           job-k6.yaml
+│
+├───frontend
+│       configmap-template.yaml
+│       deployment.yaml
+│       service.yaml
+│
+│
+├───ingress-nginx
+│       ingress-nginx-controller.yaml
+│
+└───postgres
+        deployment.yaml
+        secret.yaml
+        service.yaml
 
 3. Despliegue en EKS
 Crear namespace
