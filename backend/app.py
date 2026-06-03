@@ -13,6 +13,8 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import func
 from kubernetes import client, config
 from flask_cors import CORS
+from flask_cors import cross_origin
+
 
 # Diccionario global: simulation_id → subprocess.Popen
 ACTIVE_SIMULATIONS = {}
@@ -223,6 +225,7 @@ def create_app(test_config=None):
     }
 
     @app.post("/api/simulations")
+    @cross_origin()
     def run_simulation():
         data = request.get_json(silent=True) or {}
         scenario = data.get("scenario")
@@ -305,6 +308,7 @@ def create_app(test_config=None):
         return jsonify({"message": "Simulación cancelada", "simulation": sim.to_dict()})
     
     @app.get("/api/simulations")
+    @cross_origin()
     def list_simulations():
         sims = Simulation.query.order_by(Simulation.created_at.desc()).all()
         return jsonify([s.to_dict() for s in sims])
