@@ -56,14 +56,14 @@ build:
 	@echo "▶ Construyendo imágenes Docker..."
 	docker build --no-cache -t $(BACKEND_IMAGE) backend/
 	docker build --no-cache -t $(FRONTEND_IMAGE) frontend/
-	docker build --no-cache -t $(GENERATOR_IMAGE) generador/
+#	docker build --no-cache -t $(GENERATOR_IMAGE) generador/
 
 push:
 	@echo "▶ Subiendo imágenes a DOCKERHUB..."
 	echo $$DOCKERHUB_PSW | docker login -u $$DOCKERHUB_USR --password-stdin
 	docker push $(BACKEND_IMAGE)
 	docker push $(FRONTEND_IMAGE)
-	docker push $(GENERATOR_IMAGE)
+#	docker push $(GENERATOR_IMAGE)
 
 # ================================
 # AWS ACADEMY LOGIN
