@@ -13,7 +13,7 @@ RUN curl -fSL https://github.com/grafana/k6/releases/download/v0.52.0/k6-v0.52.0
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY backend/ .
+COPY . .
 
 EXPOSE 5001
 
