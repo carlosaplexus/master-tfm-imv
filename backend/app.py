@@ -324,7 +324,7 @@ def create_app(test_config=None):
         process = ACTIVE_SIMULATIONS.get(sim_id)
         if process:
             try:
-                process.terminate()
+                process.kill()
             except Exception as e:
                 return jsonify({"error": f"No se pudo detener k6: {str(e)}"}), 500
 
