@@ -620,6 +620,7 @@ function cerrarAyuda() {
   document.getElementById("help-overlay").style.display = "none";
   document.getElementById("help-popup").style.display = "none";
 }
+
 // Cerrar al hacer clic fuera del popup
 document.getElementById("help-overlay").addEventListener("click", cerrarAyuda);
 
@@ -637,6 +638,7 @@ function descargarAyuda() {
     w.print();
   });
 }
+
 
 // POPUP PRIVACIDAD
 async function privacidad() {
@@ -664,10 +666,11 @@ function cerrarPrivacidad() {
   document.getElementById("help-overlay").style.display = "none";
   document.getElementById("help-popup").style.display = "none";
 }
+
 // Cerrar al hacer clic fuera del popup
 document.getElementById("help-overlay").addEventListener("click", cerrarPrivacidad);
 
-function descargarAyuda() {
+function descargarPrivacidad() {
   const w = window.open("static/privacidad.html", "_blank");
 
   if (!w) {

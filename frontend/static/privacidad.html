@@ -14,20 +14,30 @@
     h1, h2 {
       color: #b30000;
     }
+    @media print {
+    #btn-descarga-privacidad {
+        visibility: hidden !important;
+    }
+    }      
   </style>
 </head>
 <body>
 
   <h1>Política de Privacidad</h1>
+  <div style="text-align:right; margin-top:-40px;">
+    <button id="btn-descarga-privacidad" style="padding:6px 12px; font-size:12pt; cursor:pointer;">
+      📄 Exportar a PDF
+    </button>
+  </div>
 
   <p>
     La presente página forma parte de un Trabajo de Fin de Máster (TFM) con finalidad exclusivamente académica.
     No está destinada a uso comercial ni profesional, y no persigue la obtención de beneficio económico alguno.
   </p>
 
-  <h2>1. Responsable del proyecto</h2>
+  <h2>1. Autor del proyecto</h2>
   <p>
-    <strong>Autor:</strong> Carlos Alonso<br>
+    <strong>Autor:</strong> Carlos Alonso Estévez<br>
     <strong>Programa:</strong> Máster en Desarrollo y Operaciones<br>
     <strong>Universidad:</strong> Universidad Internacional de La Rioja (UNIR)<br>
     <strong>Año:</strong> 2026
