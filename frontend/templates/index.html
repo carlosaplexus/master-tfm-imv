@@ -47,8 +47,8 @@
     @media print { 
       body * { display: none !important; } 
       #help-popup, #help-popup * { display: block !important;}
-      #help-popup { position: absolute; top: 0; left: 0; width: 100%; background: white; }
-    }
+      #help-popup { position: absolute; top: 0; left: 0; width: 100%; background: white;}
+    } 
     footer { position:fixed; bottom:0; left:0; width:100%; background-color:#b30000; padding:12px 0; text-align:center; 
         font-family:Arial, Sans-serif; font-size:12pt; color:white;}
   </style>
@@ -232,7 +232,7 @@
   <a href="#" onclick="privacidad()" style="color:white; text-decoration:underline;">
     Política de Privacidad
   </a>
-  — Desarrollado por Carlos Alonso - TFM DevOps UNIR -
+  — Desarrollado por <a href="https://www.carlosae.com" style="color:white; text-decoration:underline;" target="_blank"> Carlos Alonso </a> - TFM DevOps UNIR -
 </footer>
 
 
@@ -592,6 +592,44 @@ function goToPage() {
     currentPage = p;
     loadPatients();
   }
+}
+
+//EXPORTACION DE TABLAS
+function exportarTabla(idTabla) {
+  const tabla = document.getElementById(idTabla);
+
+  if (!tabla) return;
+
+  // Crear ventana nueva
+  const w = window.open('', '_blank');
+
+  w.document.write(`
+    <html>
+      <head>
+        <title>Exportación</title>
+        <style>
+          body { font-family: Arial; padding: 20px;}
+          table { border-collapse: collapse; width: 100%; }
+          th, td { border: 1px solid #000; padding: 6px; text-align: left; }
+          th { background: #f0f0f0; }
+          @media print {
+            * {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+          }
+        </style>
+      </head>
+      <body>
+        ${tabla.outerHTML}
+      </body>
+    </html>
+  `);
+  w.document.close();
+
+  w.onload = () => {
+    w.print();
+  };  
 }
 
 // POPUP AYUDA
