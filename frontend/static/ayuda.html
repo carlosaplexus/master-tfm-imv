@@ -1,0 +1,398 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <title>Ayuda - Simulación de carga digital en IMV</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      font-size: 12pt;          /* Equivalente a Word 12pt */
+      color: #004080;           /* Azul suave */
+      margin: 20px;
+      line-height: 1.5;
+    }
+    p {
+      text-align: justify;
+    }
+    h1, h2, h3 {
+      color: #002050;
+    }
+    a {
+      color: #0066cc;
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+    ul.indice {
+      list-style-type: none;
+      padding-left: 0;
+      margin-bottom: 20px;
+    }
+    ul.indice li {
+      margin: 4px 0;
+    }
+    .btn-img {
+      vertical-align: middle;
+      margin: 0 4px;
+    }
+    .bloque-boton {
+      border: 1px solid #c0c0c0;
+      border-radius: 6px;
+      padding: 10px;
+      margin: 10px 0;
+      background: #f5f8ff;
+    }  
+
+    button {
+        cursor: pointer;
+    }
+
+    @media print {
+    #btn-descarga-ayuda {
+        visibility: hidden !important;
+    }
+    }    
+  </style>
+</head>
+<body>
+
+  <h1>Ayuda de la aplicación</h1>
+  <div style="text-align:right; margin-top:-40px;">
+    <button id="btn-descarga-ayuda" style="padding:6px 12px; font-size:12pt; cursor:pointer;">
+      📄 Exportar a PDF
+    </button>
+  </div>
+
+  <p>
+    Esta página describe el funcionamiento de la aplicación de
+    <strong>Simulación de carga digital en IMV</strong>, explicando cada sección
+    y el uso de los distintos botones disponibles en la interfaz.
+  </p>
+
+  <!-- Índice de apartados -->
+  <h2>Índice</h2>
+  <ul class="indice">
+    <li><a href="#seccion-simulaciones">1. Simulaciones de carga</a></li>
+    <li><a href="#seccion-pacientes">2. Pacientes recibidos</a></li>
+    <li><a href="#seccion-menu">3. Menú superior y opciones</a></li>
+    <li><a href="#seccion-botones">4. Descripción de botones</a></li>
+    <li><a href="#seccion-simulaciones-tabla">5. Tabla de historial de simulaciones</a></li>
+    <li><a href="#seccion-pacientes-tabla">6. Tabla de pacientes recibidos</a></li>
+    <li><a href="#seccion-escenarios">7. Escenarios de simulación</a></li>
+    <li><a href="#seccion-errores">8. Mensajes y errores del sistema</a></li>
+    <li><a href="#seccion-exportacion">9. Exportación a PDF</a></li>    
+    <li><a href="#seccion-glosario">10. Glosario de términos médicos</a></li>
+  </ul>
+
+  <!-- 1. Simulaciones de carga -->
+  <h2 id="seccion-simulaciones">1. Simulaciones de carga</h2>
+  <p>
+    En la sección <strong>Simulaciones de carga</strong> puede seleccionar un
+    escenario de simulación y lanzar una prueba de carga sobre el sistema IMV.
+    Cada escenario define una duración máxima y varias oleadas de pacientes
+    que se simulan de forma progresiva.
+  </p>
+  <p>
+    Para iniciar una simulación, seleccione un escenario en el desplegable
+    <strong>“Escenario de simulación”</strong> y pulse el botón
+    <strong>“Iniciar simulación”</strong>. Durante la ejecución, se mostrará
+    una barra de progreso que indica el porcentaje completado, la oleada
+    activa y el tiempo restante estimado.
+  </p>
+
+  <!-- 2. Pacientes recibidos -->
+  <h2 id="seccion-pacientes">2. Pacientes recibidos</h2>
+  <p>
+    La sección <strong>Pacientes recibidos</strong> muestra en forma de tabla
+    los pacientes generados por la simulación y recibidos por el sistema.
+    Cada fila corresponde a un paciente, incluyendo información como el
+    dispositivo, la edad, el género, la lesión principal, el triage asignado
+    y el estado.
+  </p>
+  <p>
+    En la parte superior de esta sección se encuentran los controles de
+    paginación, que permiten navegar entre páginas de resultados, ir a la
+    primera o última página, avanzar o retroceder, y recargar la información.
+  </p>
+
+  <!-- 3. Menú superior -->
+  <h2 id="seccion-menu">3. Menú superior y opciones</h2>
+  <p>
+    En la parte superior de la aplicación se muestra un menú con acceso rápido
+    a las secciones principales:
+  </p>
+  <ul>
+    <li><strong>Simulaciones</strong>: desplaza la vista a la sección de simulaciones de carga.</li>
+    <li><strong>Pacientes</strong>: desplaza la vista a la sección de pacientes recibidos.</li>
+    <li><strong>Ayuda</strong>: abre esta ventana de ayuda con la descripción detallada de la aplicación.</li>
+    <li><strong>Icono de tema</strong> (🌓): permite alternar entre modo claro y modo oscuro.</li>
+  </ul>
+
+  <!-- 4. Descripción de botones -->
+  <h2 id="seccion-botones">4. Descripción de botones</h2>
+
+  <div class="bloque-boton">
+    <h3>Botón “▶️ Iniciar simulación”</h3>
+    <p>
+      Este botón lanza la simulación para el escenario seleccionado. Una vez
+      pulsado, el botón queda deshabilitado mientras la simulación está en
+      curso y se muestra una barra de progreso indicando el avance.
+    </p>
+  </div>
+
+  <div class="bloque-boton">
+    <h3>Botón “⛔ Parar simulación”</h3>
+    <p>
+      Este botón permite cancelar una simulación en curso. Al pulsarlo, se
+      envía una petición de cancelación al servidor y, una vez procesada, la
+      simulación se detiene y se actualiza el historial de simulaciones.
+    </p>
+  </div>
+
+  <div class="bloque-boton">
+    <h3>Botón de recarga de simulaciones 🔄</h3>
+    <p>
+      Este botón actualiza el <strong>historial de simulaciones</strong>,
+      consultando de nuevo al servidor para obtener la lista de ejecuciones
+      recientes, su estado, duración, latencia media, VUs y throughput.
+    </p>
+  </div>
+
+  <div class="bloque-boton">
+    <h3>Botón de recarga de pacientes 🔄</h3>
+    <p>
+      Este botón vuelve a cargar la tabla de <strong>Pacientes recibidos</strong>
+      desde el servidor, manteniendo la lógica de paginación configurada.
+    </p>
+  </div>
+
+  <div class="bloque-boton">
+    <h3>Controles de paginación</h3>
+    <p>
+      Los botones de paginación permiten navegar entre las distintas páginas
+      de pacientes:
+    </p>
+    <ul>
+      <li><strong>⏮</strong>: ir a la primera página.</li>
+      <li><strong>◀</strong>: ir a la página anterior.</li>
+      <li><strong>▶</strong>: ir a la página siguiente.</li>
+      <li><strong>⏭</strong>: ir a la última página.</li>
+      <li><strong>Ir</strong>: saltar directamente a un número de página introducido en el campo numérico.</li>
+    </ul>
+  </div>
+
+  <!-- 5. Tabla de historial de simulaciones -->
+  <h2 id="seccion-simulaciones-tabla">5. Tabla de historial de simulaciones</h2>
+
+  <p>
+    La tabla de <strong>Historial de simulaciones</strong> muestra todas las ejecuciones
+    realizadas en el sistema, ordenadas de más reciente a más antigua. Cada fila
+    corresponde a una simulación ejecutada mediante la herramienta k6 y procesada
+    por el backend.
+  </p>
+
+  <p>Los campos que aparecen en la tabla son los siguientes:</p>
+
+  <ul>
+    <li><strong>Fecha-Hora</strong>: momento en que se inició la simulación. Se genera automáticamente en el backend.</li>
+    <li><strong>Escenario</strong>: nombre del escenario ejecutado (por ejemplo: <em>escenario_1</em>, <em>escenario_2</em>).</li>
+    <li><strong>Duración (s)</strong>: duración real de la simulación en segundos, medida desde el inicio hasta la finalización del proceso k6.</li>
+    <li><strong>Latencia media (ms)</strong>: tiempo medio de respuesta de las peticiones HTTP generadas por k6.</li>
+    <li><strong>VUs</strong>: número máximo de usuarios virtuales (Virtual Users) utilizados durante la prueba.</li>
+    <li><strong>Throughput (req/s)</strong>: número de peticiones por segundo procesadas durante la simulación.</li>
+    <li><strong>Estado</strong>: estado final de la simulación, que puede ser:
+      <ul>
+        <li><strong>running</strong>: la simulación está en ejecución.</li>
+        <li><strong>completed</strong>: la simulación terminó correctamente.</li>
+        <li><strong>cancelled</strong>: la simulación fue detenida manualmente.</li>
+        <li><strong>error</strong>: ocurrió un problema al ejecutar o procesar la simulación.</li>
+      </ul>
+    </li>
+  </ul>
+
+  <p>
+    El backend genera estos datos a partir del fichero de resumen exportado por k6
+    y los almacena en la tabla <strong>simulations</strong> de la base de datos.
+  </p>
+
+  <!-- 6. Tabla de pacientes recibidos -->
+  <h2 id="seccion-pacientes-tabla">6. Tabla de pacientes recibidos</h2>
+
+  <p>
+    La tabla de <strong>Pacientes recibidos</strong> muestra los registros generados
+    por la simulación y enviados al backend mediante peticiones HTTP. Cada fila
+    representa un paciente simulado con sus datos clínicos y administrativos.
+  </p>
+
+  <p>Los campos mostrados en la tabla son:</p>
+
+  <ul>
+    <li><strong>ID</strong>: identificador único del paciente en la base de datos.</li>
+    <li><strong>Dispositivo</strong>: identificador del dispositivo que generó el paciente (campo <em>device_id</em>).</li>
+    <li><strong>Seq</strong>: número secuencial del paciente dentro del dispositivo (<em>device_victim_seq</em>).</li>
+    <li><strong>Edad</strong>: edad del paciente.</li>
+    <li><strong>Género</strong>: género del paciente.</li>
+    <li><strong>Lesión</strong>: lesión principal registrada (<em>LesionPrincipal</em>).</li>
+    <li><strong>Triage</strong>: categoría de triage asignada (<em>TriageAsignado</em>), que puede ser:
+      <ul>
+        <li><strong>rojo</strong>: prioridad máxima.</li>
+        <li><strong>amarillo</strong>: prioridad intermedia.</li>
+        <li><strong>verde</strong>: prioridad baja.</li>
+      </ul>
+    </li>
+    <li><strong>Estado</strong>: estado del paciente en el sistema. Por defecto es <strong>registrado</strong>.</li>
+  </ul>
+
+  <p>
+    Además de los campos visibles en la tabla, el backend almacena otros datos
+    clínicos que no se muestran directamente en la interfaz:
+  </p>
+
+  <ul>
+    <li><strong>Frecuencia cardiaca</strong></li>
+    <li><strong>Frecuencia respiratoria</strong></li>
+    <li><strong>Presión sistólica</strong></li>
+    <li><strong>Glasgow</strong> (escala de coma)</li>
+    <li><strong>created_at</strong> y <strong>updated_at</strong>: fechas de creación y actualización del registro.</li>
+  </ul>
+
+  <p>
+    La tabla utiliza paginación para manejar grandes volúmenes de datos. El backend
+    devuelve el número total de pacientes mediante la cabecera
+    <strong>X-Total-Count</strong>, lo que permite calcular el número de páginas.
+  </p>
+
+  <!-- 7. Escenarios de simulación -->
+  <h2 id="seccion-escenarios">7. Escenarios de simulación</h2>
+
+  <p>
+    Cada escenario de simulación corresponde a un script k6 ubicado en el directorio
+    <strong>escenarios/</strong>. El backend selecciona el script adecuado según el
+    escenario elegido por el usuario.
+  </p>
+
+  <p>
+    Los escenarios definen la duración total de la simulación y las oleadas de
+    pacientes que se generarán. La barra de progreso de la interfaz utiliza esta
+    información para mostrar el porcentaje completado, la oleada activa y el tiempo
+    restante estimado.
+  </p>
+
+  <!-- 8. Mensajes y errores del sistema -->
+  <h2 id="seccion-errores">8. Mensajes y errores del sistema</h2>
+
+  <p>
+    La aplicación puede mostrar distintos mensajes informativos o de error según
+    el estado de la simulación o la comunicación con el backend:
+  </p>
+
+  <ul>
+    <li><strong>“Ya hay una simulación en ejecución”</strong>: aparece cuando se intenta iniciar una nueva simulación mientras otra está en curso.</li>
+    <li><strong>“Simulación cancelada”</strong>: se muestra cuando el usuario detiene manualmente la simulación.</li>
+    <li><strong>“Error en la simulación”</strong>: indica que k6 terminó con un error o que el resumen no pudo procesarse.</li>
+    <li><strong>“Error cargando pacientes”</strong>: aparece si el backend no responde correctamente al solicitar la tabla de pacientes.</li>
+  </ul>
+
+<!-- 9. Exportación a PDF -->
+<h2 id="seccion-exportacion">9. Exportación a PDF</h2>
+
+<p>
+  La aplicación permite exportar distintos elementos a formato PDF para su
+  almacenamiento o consulta posterior. Los documentos generados se guardan
+  automáticamente en la carpeta de descargas configurada por el navegador.
+</p>
+
+<h3>9.1 Exportar la página de ayuda</h3>
+<p>
+  En la parte superior derecha de esta página aparece el botón
+  <strong>“📄 Exportar a PDF”</strong>. Al pulsarlo, se genera un documento PDF
+  con todo el contenido de la ayuda.
+</p>
+
+<h3>9.2 Exportar el historial de simulaciones</h3>
+<p>
+  En la sección <strong>Simulaciones de carga</strong>, junto al botón de
+  refresco, aparece un botón con el icono <strong>📄</strong>. Este botón
+  exporta la tabla de simulaciones tal y como se muestra en pantalla.
+</p>
+
+<h3>9.3 Exportar la tabla de pacientes</h3>
+<p>
+  En la sección <strong>Pacientes recibidos</strong>, junto al botón de recarga,
+  aparece un botón con el icono <strong>📄</strong>. Este botón exporta la tabla
+  de pacientes correspondiente a la página actual.
+</p>
+
+<!-- 10. Glosario de términos médicos -->
+<h2 id="seccion-glosario">10. Glosario de términos médicos</h2>
+
+<p>
+  A continuación se incluye un glosario con los principales términos médicos
+  utilizados en la tabla de pacientes y en los escenarios de simulación.
+</p>
+
+<ul>
+  <li>
+    <strong>Triage</strong>: sistema de clasificación de pacientes según la
+    gravedad de sus lesiones y la urgencia de atención. Las categorías más
+    habituales son:
+    <ul>
+      <li><strong>Rojo</strong>: atención inmediata.</li>
+      <li><strong>Amarillo</strong>: atención urgente pero no inmediata.</li>
+      <li><strong>Verde</strong>: atención diferida.</li>
+    </ul>
+  </li>
+
+  <li>
+    <strong>Lesión principal</strong>: lesión predominante o más relevante
+    detectada en el paciente simulado.
+  </li>
+
+  <li>
+    <strong>Frecuencia cardiaca</strong>: número de latidos por minuto (lpm).
+    Valores muy altos o muy bajos pueden indicar inestabilidad.
+  </li>
+
+  <li>
+    <strong>Frecuencia respiratoria</strong>: número de respiraciones por minuto.
+    Es un indicador clave en situaciones de trauma.
+  </li>
+
+  <li>
+    <strong>Presión sistólica</strong>: presión arterial máxima durante la
+    contracción del corazón. Valores bajos pueden indicar shock.
+  </li>
+
+  <li>
+    <strong>Escala de Glasgow</strong>: sistema de puntuación que evalúa el nivel
+    de consciencia del paciente. Va de 3 (coma profundo) a 15 (alerta).
+  </li>
+
+  <li>
+    <strong>Estado del paciente</strong>: estado administrativo del registro en
+    el sistema. En esta aplicación se utiliza principalmente:
+    <ul>
+      <li><strong>registrado</strong>: el paciente ha sido recibido y almacenado.</li>
+    </ul>
+  </li>
+
+  <li>
+    <strong>Oleada</strong>: grupo de pacientes generados en un intervalo
+    concreto dentro de un escenario de simulación.
+  </li>
+
+  <li>
+    <strong>VUs (Virtual Users)</strong>: usuarios virtuales utilizados por k6
+    para generar carga sobre el sistema.
+  </li>
+
+  <li>
+    <strong>Throughput</strong>: número de peticiones por segundo procesadas por
+    el sistema durante la simulación.
+  </li>
+</ul>
+
+
+</body>
+</html>
