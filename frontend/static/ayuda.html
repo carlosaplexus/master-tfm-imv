@@ -48,6 +48,9 @@
         cursor: pointer;
     }
 
+    .footer {  width:100%; background-color:#b30000; padding:12px 0; text-align:center; 
+        font-family:Arial, Sans-serif; font-size:12pt; color:white;}    
+
     @media print {
     #btn-descarga-ayuda {
         visibility: hidden !important;
@@ -83,6 +86,7 @@
     <li><a href="#seccion-errores">8. Mensajes y errores del sistema</a></li>
     <li><a href="#seccion-exportacion">9. Exportación a PDF</a></li>    
     <li><a href="#seccion-glosario">10. Glosario de términos médicos</a></li>
+    <li><a href="#seccion-edicion">11. Edición de pacientes y gestión de estados</a></li>
   </ul>
 
   <!-- 1. Simulaciones de carga -->
@@ -393,6 +397,85 @@
   </li>
 </ul>
 
+<!-- 11. Edición de pacientes y actualización de estados -->
+<h2 id="seccion-edicion">11. Edición de pacientes y actualización de estados</h2>
+
+<p>
+  La aplicación incorpora una funcionalidad que permite revisar y actualizar la
+  información asociada a cada paciente recibido. Esta herramienta facilita la
+  gestión del flujo asistencial, permitiendo modificar el triage asignado y el
+  estado clínico del paciente en función de su evolución.
+</p>
+
+<h3>Acceso a la ventana de edición</h3>
+<p>
+  En la tabla de <strong>Pacientes recibidos</strong>, cada registro dispone de
+  un icono de edición (✏️). Al seleccionarlo, se abre una ventana emergente que
+  muestra los datos actualizados del paciente, obtenidos directamente del
+  servidor para garantizar la precisión de la información.
+</p>
+
+<h3>Información editable</h3>
+<p>
+  La ventana de edición permite modificar los siguientes campos:
+</p>
+<ul>
+  <li><strong>Triage asignado</strong>: nivel de prioridad clínica del paciente.</li>
+  <li><strong>Estado</strong>: situación actual del paciente dentro del proceso asistencial.</li>
+</ul>
+
+<p>
+  El resto de los datos mostrados (edad, género, lesión principal, etc.) se
+  presentan únicamente con carácter informativo y no son editables.
+</p>
+
+<h3>Función del botón “Guardar”</h3>
+<p>
+  El botón <strong>Guardar</strong> actualiza los datos del paciente en el
+  sistema. Una vez completada la operación, la ventana de edición se cierra y
+  la tabla se recarga automáticamente para reflejar los cambios realizados.
+</p>
+
+<h3>Función del botón “Enviar y guardar”</h3>
+<p>
+  El botón <strong>Enviar y guardar</strong> está destinado a indicar que el
+  paciente ha sido remitido al sistema HCR. Al utilizar esta opción:
+</p>
+<ul>
+  <li>Se guardan los cambios efectuados en el triage, si los hubiera.</li>
+  <li>El estado del paciente se actualiza automáticamente a <strong>“Enviado”</strong>.</li>
+</ul>
+
+<p>
+  Tras la actualización, la tabla se refresca y el estado del paciente aparece
+  resaltado en color azul claro para facilitar su identificación.
+</p>
+
+<h3>Colores asociados a los estados</h3>
+<p>
+  Con el fin de mejorar la interpretación visual, cada estado del paciente se
+  representa mediante un color específico:
+</p>
+<ul>
+  <li><strong>Registrado</strong>: blanco.</li>
+  <li><strong>Alta</strong>: verde claro.</li>
+  <li><strong>Pruebas diagnósticas</strong>: rosa claro.</li>
+  <li><strong>En observación</strong>: amarillo claro.</li>
+  <li><strong>Fallecido</strong>: negro con texto blanco.</li>
+  <li><strong>Enviado</strong>: azul claro.</li>
+</ul>
+
+<h3>Actualización automática de la información</h3>
+<p>
+  Tras cualquier operación de guardado, la tabla de pacientes se reconstruye
+  por completo, garantizando que la información mostrada corresponde siempre a
+  los datos más recientes almacenados en el sistema.
+</p>
+
+<p class="footer">
+  © 2026 Todos los derechos reservados. 
+  </br> Desarrollado por <a href="https://www.carlosae.com" style="color:white; text-decoration:underline;" target="_blank"> Carlos Alonso </a> - TFM DevOps UNIR -
+</p>
 
 </body>
 </html>
