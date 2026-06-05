@@ -216,11 +216,80 @@
         <th>Lesión</th>
         <th>Triage</th>
         <th>Estado</th>
+        <th>Editar</th>
       </tr>
     </thead>
     <tbody></tbody>
   </table>
 </div>
+
+<!-- Fondo oscuro -->
+<div id="edit-overlay"
+     style="display:none; position:fixed; top:0; left:0; width:100%; height:100%;
+            background:rgba(0,0,0,0.5); backdrop-filter:blur(2px);
+            z-index:9998;">
+</div>
+
+<!-- Popup de edición -->
+<div id="edit-popup"
+     style="display:none; position:fixed; top:50%; left:50%;
+            transform:translate(-50%, -50%);
+            width:450px; background:white; padding:20px;
+            border-radius:8px; box-shadow:0 4px 20px rgba(0,0,0,0.3);
+            z-index:9999;">
+
+  <h3>Editar paciente</h3>
+
+  <form id="edit-form">
+
+    <label>ID:</label>
+    <input id="edit-id" type="text" readonly style="width:100%; margin-bottom:10px;">
+
+    <label>Dispositivo:</label>
+    <input id="edit-device" type="text" readonly style="width:100%; margin-bottom:10px;">
+
+    <label>Secuencia:</label>
+    <input id="edit-seq" type="text" readonly style="width:100%; margin-bottom:10px;">
+
+    <label>Edad:</label>
+    <input id="edit-age" type="text" readonly style="width:100%; margin-bottom:10px;">
+
+    <label>Género:</label>
+    <input id="edit-gender" type="text" readonly style="width:100%; margin-bottom:10px;">
+
+    <label>Lesión:</label>
+    <input id="edit-lesion" type="text" readonly style="width:100%; margin-bottom:10px;">
+
+    <label>Triage:</label>
+    <select id="edit-triage" style="width:100%; margin-bottom:10px;">
+      <option value="Rojo">Rojo</option>
+      <option value="Amarillo">Amarillo</option>
+      <option value="Verde">Verde</option>
+      <option value="Negro">Negro</option>
+    </select>
+
+    <label>Estado:</label>
+    <select id="edit-status" style="width:100%; margin-bottom:10px;">
+      <option value="registrado">Registrado</option>
+      <option value="alta">Alta</option>
+      <option value="pruebas diagnósticas">Pruebas diagnósticas</option>
+      <option value="en Observación">En Observación</option>
+      <option value="fallecido">Fallecido</option>
+      <option value="enviado">Enviado</option>
+    </select>
+
+    <div style="text-align:center; margin-top:15px;">
+      <button type="button" onclick="guardarPaciente()" style="padding:8px 15px;">Guardar</button>
+      <button type="button" onclick="enviarYGuardar()" style="padding:8px 15px; background:#007bff; color:white;">
+        Enviar a HCR y Guardar
+      </button>
+      <button type="button" onclick="cerrarEdicion()" style="padding:8px 15px;">Cancelar</button>
+    </div>
+
+  </form>
+</div>
+
+
 
 <!-- <footer style="background-color:#b30000; padding:15px 0; text-align:center;">
   <p style="margin:0; font-family:Arial, Sans-serif; font-size:12pt; color:white;">
@@ -542,8 +611,14 @@ async function loadPatients() {
         <td>${p.Genero ?? ""}</td>
         <td>${p.LesionPrincipal ?? ""}</td>
         <td class="${triageClass}">${p.TriageAsignado ?? ""}</td>
-        <td>${p.estado ?? ""}</td>
+        <td class="estado-cell">${p.estado.toUpperCase() ?? ""}</td>
+        <td><button onclick='editarPaciente(${p.id})'>✏️</button></td>
       `;
+
+      // Aplicar color según estado
+      const estadoCell = tr.querySelector(".estado-cell");
+      aplicarColorEstado(estadoCell, p.estado);
+
       tbody.appendChild(tr);
     });
 
@@ -553,9 +628,13 @@ async function loadPatients() {
 }
 
 function reloadPatients() {
-  currentPage = 1;
-  loadPatients();
+    loadPatients(currentPage);
 }
+
+// function reloadPatients() {
+//   currentPage = 1;
+//   loadPatients();
+// }
 
 function goFirst() {
   if (currentPage !== 1) {
@@ -631,6 +710,131 @@ function exportarTabla(idTabla) {
     w.print();
   };  
 }
+
+//POPUP EDICION TABLA PACIENTES
+function addRow(patient) {
+    const tbody = document.querySelector("#patients-table tbody");
+    const tr = document.createElement("tr");
+
+    tr.innerHTML = `
+      <td>${patient.id}</td>
+      <td>${patient.device}</td>
+      <td>${patient.seq}</td>
+      <td>${patient.age}</td>
+      <td>${patient.gender}</td>
+      <td>${patient.lesion}</td>
+      <td>${patient.triage}</td>
+      <td class="estado-cell">${patient.status}</td>
+      <td><button onclick='editarPaciente(${patient.id})'>✏️</button></td>
+    `;
+
+    aplicarColorEstado(tr.querySelector(".estado-cell"), patient.status);
+
+    tbody.appendChild(tr);
+}
+
+async function editarPaciente(id) {
+    const res = await fetch(`{{ backend }}/api/patients/${id}`);
+    const p = await res.json();
+    //const p = data[0]; // paciente actualizado
+
+    document.getElementById("edit-id").value = p.id;
+    document.getElementById("edit-device").value = p.device_id;
+    document.getElementById("edit-seq").value = p.device_victim_seq;
+    document.getElementById("edit-age").value = p.Edad;
+    document.getElementById("edit-gender").value = p.Genero;
+    document.getElementById("edit-lesion").value = p.LesionPrincipal;
+
+    document.getElementById("edit-triage").value = p.TriageAsignado;
+    document.getElementById("edit-status").value = p.estado;
+
+    document.getElementById("edit-overlay").style.display = "block";
+    document.getElementById("edit-popup").style.display = "block";
+}
+
+function cerrarEdicion() {
+    document.getElementById("edit-overlay").style.display = "none";
+    document.getElementById("edit-popup").style.display = "none";
+}
+
+async function guardarPaciente() {
+    const data = recogerDatosFormulario();
+
+    const response = await fetch(`{{ backend }}/api/patients/${data.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            triage: data.triage,
+            estado: data.status
+        })
+    });
+
+    if (!response.ok) {
+        alert("Error al guardar los cambios");
+        return;
+    }
+
+    cerrarEdicion();
+    reloadPatients();
+}
+
+
+async function enviarYGuardar() {
+    const data = recogerDatosFormulario();
+
+    const response = await fetch(`{{ backend }}/api/patients/${data.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            triage: data.triage,
+            estado: "enviado"
+        })
+    });
+
+    if (!response.ok) {
+        alert("Error al enviar a HCR");
+        return;
+    }
+
+    cerrarEdicion();
+    reloadPatients();
+}
+
+
+// function enviarYGuardar() {
+//     const data = recogerDatosFormulario();
+//     data.status = "Enviado";
+//     console.log("Enviar y Guardar:", data);
+//     // Llamada a endpoint
+//     cerrarEdicion();
+// }
+
+function recogerDatosFormulario() {
+    return {
+        id: document.getElementById("edit-id").value,
+        triage: document.getElementById("edit-triage").value,
+        status: document.getElementById("edit-status").value
+    };
+}
+
+function aplicarColorEstado(cell, estado) {
+    if (!estado) return;
+    estado = estado.toLowerCase();
+
+    const colores = {
+        "registrado": { bg: "white", fg: "black" },
+        "alta": { bg: "#c8f7c5", fg: "black" },
+        "pruebas diagnósticas": { bg: "#f7c5e8", fg: "black" },
+        "en observación": { bg: "#fff7a8", fg: "black" },
+        "fallecido": { bg: "black", fg: "white" },
+        "enviado": { bg: "#cce5ff", fg: "black" }
+    };
+
+    const c = colores[estado] || colores["registrado"];
+    cell.style.background = c.bg;
+    cell.style.color = c.fg;
+}
+
 
 // POPUP AYUDA
 async function ayuda() {

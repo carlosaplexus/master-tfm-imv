@@ -211,6 +211,33 @@ def create_app(test_config=None):
         max_seq = db.session.query(func.max(Patient.device_victim_seq)).filter_by(device_id=device_id).scalar()
         return jsonify({"max_seq": max_seq or 0})
 
+    @app.get("/api/patients/<int:patient_id>")
+    def get_patient(patient_id):
+        patient = Patient.query.get(patient_id)
+        if not patient:
+            return jsonify({"error": "Paciente no encontrado"}), 404
+        return jsonify(patient.to_dict()), 200
+
+    @app.put("/api/patients/<int:patient_id>")
+    def update_patient(patient_id):
+        data = request.get_json(silent=True) or {}
+
+        patient = Patient.query.get(patient_id)
+        if not patient:
+            return jsonify({"error": "Paciente no encontrado"}), 404
+
+        # Solo permitimos editar triage y estado
+        if "triage" in data:
+            patient.triage_asignado = data["triage"]
+
+        if "estado" in data:
+            patient.estado = data["estado"]
+
+        db.session.commit()
+
+        return jsonify(patient.to_dict()), 200
+
+
     # ==========================================================
     # ENDPOINTS SIMULACIONES CON K6 EN K8S
     # ==========================================================
