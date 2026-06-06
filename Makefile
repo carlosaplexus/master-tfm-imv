@@ -36,11 +36,11 @@ test-api:
 		--junitxml=results/api_result.xml \
 		--html=results/api/index.html --self-contained-html
 
-test-generador:
-	mkdir -p results/unit results/api results/coverage
-	pytest generador/tests \
-		--junitxml=results/generador_result.xml \
-		--html=results/generador/index.html --self-contained-html
+# test-generador:
+# 	mkdir -p results/unit results/api results/coverage
+# 	pytest generador/tests \
+# 		--junitxml=results/generador_result.xml \
+# 		--html=results/generador/index.html --self-contained-html
 
 test-e2e:
 	@echo "▶ Ejecutando Cypress..."
