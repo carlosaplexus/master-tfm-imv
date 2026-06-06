@@ -287,7 +287,7 @@ def create_app(test_config=None):
         os.makedirs(RESULTS_DIR, exist_ok=True)
 
         timestamp = time.strftime("%Y%m%d-%H%M%S")
-        summary_path = os.path.join(RESULTS_DIR, f"summary-{timestamp}.json")
+        summary_path = os.path.join(RESULTS_DIR, f"{scenario}-{timestamp}.json")
 
         print("K6 SUMMARY PATH:", summary_path)
 
