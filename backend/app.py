@@ -279,9 +279,17 @@ def create_app(test_config=None):
         db.session.add(sim)
         db.session.commit()
 
-        # Archivo temporal para summary
-        with tempfile.NamedTemporaryFile(suffix=".json", delete=False) as tmp:
-            summary_path = tmp.name
+        # # Archivo temporal para summary
+        # with tempfile.NamedTemporaryFile(suffix=".json", delete=False) as tmp:
+        #     summary_path = tmp.name
+
+        RESULTS_DIR = "/k6-results"
+        os.makedirs(RESULTS_DIR, exist_ok=True)
+
+        timestamp = time.strftime("%Y%m%d-%H%M%S")
+        summary_path = os.path.join(RESULTS_DIR, f"summary-{timestamp}.json")
+
+        print("K6 SUMMARY PATH:", summary_path)
 
         if app.config.get("TESTING"):
             # No lanzar k6 ni hilos en tests
