@@ -67,11 +67,11 @@ pipeline {
                     reportName: 'API Tests Report'
                 ])
 
-                publishHTML(target: [
-                    reportDir: 'results/generador',
-                    reportFiles: 'index.html',
-                    reportName: 'Generador Tests Report'
-                ])                
+                // publishHTML(target: [
+                //     reportDir: 'results/generador',
+                //     reportFiles: 'index.html',
+                //     reportName: 'Generador Tests Report'
+                // ])                
 
                 publishHTML(target: [
                     reportDir: 'results/coverage',
