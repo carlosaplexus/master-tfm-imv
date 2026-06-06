@@ -283,7 +283,7 @@ def create_app(test_config=None):
         # with tempfile.NamedTemporaryFile(suffix=".json", delete=False) as tmp:
         #     summary_path = tmp.name
 
-        RESULTS_DIR = "/tmp/k6-results"
+        RESULTS_DIR = "/app/k6-results"
         os.makedirs(RESULTS_DIR, exist_ok=True)
 
         timestamp = time.strftime("%Y%m%d-%H%M%S")
