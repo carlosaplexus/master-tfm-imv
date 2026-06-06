@@ -9,7 +9,7 @@ SCRIPT_CARGA_MANUAL=imv_escenario1.js
 
 BACKEND_IMAGE=$(REGISTRY)/backend:latest
 FRONTEND_IMAGE=$(REGISTRY)/frontend:latest
-GENERATOR_IMAGE=$(REGISTRY)/generador:latest
+# GENERATOR_IMAGE=$(REGISTRY)/generador:latest
 
 # ================================
 # TESTS

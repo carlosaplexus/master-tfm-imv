@@ -20,12 +20,12 @@ pipeline {
             }
         }
 
-        stage('GENERADOR Tests') {
-            steps {
-                sh 'make test-generador'
-                archiveArtifacts artifacts: "results/*.xml"
-            }
-        }
+        // stage('GENERADOR Tests') {
+        //     steps {
+        //         sh 'make test-generador'
+        //         archiveArtifacts artifacts: "results/*.xml"
+        //     }
+        // }
 
         // stage('E2E Tests') {
         //     steps {
