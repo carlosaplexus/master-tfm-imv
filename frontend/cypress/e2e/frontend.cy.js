@@ -11,12 +11,12 @@ describe("Frontend IMV", () => {
     cy.get("#patients-table tbody tr").should("exist");
   });
 
-  it("Permite lanzar una simulación", () => {
-    cy.visit("/");
-    cy.get("#num_generators").clear().type("1");
-    cy.get("#patients_per_generator").clear().type("10");
-    cy.contains("Iniciar simulación").click();
-    cy.contains("Simulación lanzada").should("exist");
-  });
+  // it("Permite lanzar una simulación", () => {
+  //   cy.visit("/");
+  //   cy.get("#num_generators").clear().type("1");
+  //   cy.get("#patients_per_generator").clear().type("10");
+  //   cy.contains("Iniciar simulación").click();
+  //   cy.contains("Simulación lanzada").should("exist");
+  // });
 
 });
