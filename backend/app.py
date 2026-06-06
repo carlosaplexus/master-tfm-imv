@@ -301,7 +301,6 @@ def create_app(test_config=None):
         cmd = [
             "k6", "run",
             "--summary-export", summary_path,
-            "--out", f"influxdb=http://influxdb:8086/k6?tags=run_id={timestamp},scenario={scenario}",
             script_path
         ]
 
