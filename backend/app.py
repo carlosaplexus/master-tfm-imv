@@ -283,7 +283,7 @@ def create_app(test_config=None):
         # with tempfile.NamedTemporaryFile(suffix=".json", delete=False) as tmp:
         #     summary_path = tmp.name
 
-        RESULTS_DIR = "/k6-results"
+        RESULTS_DIR = "/app/k6-results"
         os.makedirs(RESULTS_DIR, exist_ok=True)
 
         timestamp = time.strftime("%Y%m%d-%H%M%S")
@@ -301,6 +301,7 @@ def create_app(test_config=None):
         cmd = [
             "k6", "run",
             "--summary-export", summary_path,
+            "--out", f"influxdb=http://influxdb:8086/k6?tags=run_id={timestamp},scenario={scenario}",
             script_path
         ]
 
