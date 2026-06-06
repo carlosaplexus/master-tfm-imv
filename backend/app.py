@@ -85,6 +85,34 @@ class Simulation(db.Model):
     throughput = db.Column(db.Float, nullable=False)
     status = db.Column(db.String, default="running")
 
+    # Nuevas métricas — latencias
+    lat_p50 = db.Column(db.Float)
+    lat_p90 = db.Column(db.Float)
+    lat_p95 = db.Column(db.Float)
+    lat_min = db.Column(db.Float)
+    lat_max = db.Column(db.Float)
+
+    # Nuevas métricas — internas
+    waiting_avg = db.Column(db.Float)
+    connecting_avg = db.Column(db.Float)
+    blocked_avg = db.Column(db.Float)
+    sending_avg = db.Column(db.Float)
+    receiving_avg = db.Column(db.Float)
+
+    # Nuevas métricas — carga
+    total_requests = db.Column(db.Integer)
+    iterations = db.Column(db.Integer)
+    dropped_iterations = db.Column(db.Integer)
+    vus_max = db.Column(db.Integer)
+
+    # Nuevas métricas — errores
+    req_failed = db.Column(db.Integer)
+    req_passed = db.Column(db.Integer)
+
+    # Nuevas métricas — checks
+    checks_passed = db.Column(db.Integer)
+    checks_failed = db.Column(db.Integer)
+
     def to_dict(self):
         return {
             "id": self.id,
@@ -95,6 +123,31 @@ class Simulation(db.Model):
             "vus": self.vus,
             "throughput": self.throughput,
             "status": self.status,
+
+            # NUEVAS MÉTRICAS
+            "lat_p50": self.lat_p50,
+            "lat_p90": self.lat_p90,
+            "lat_p95": self.lat_p95,
+            "lat_min": self.lat_min,
+            "lat_max": self.lat_max,
+
+            "waiting_avg": self.waiting_avg,
+            "connecting_avg": self.connecting_avg,
+            "blocked_avg": self.blocked_avg,
+            "sending_avg": self.sending_avg,
+            "receiving_avg": self.receiving_avg,
+
+            "total_requests": self.total_requests,
+            "iterations": self.iterations,
+            "dropped_iterations": self.dropped_iterations,
+            "vus_max": self.vus_max,
+
+            "req_failed": self.req_failed,
+            "req_passed": self.req_passed,
+
+            "checks_passed": self.checks_passed,
+            "checks_failed": self.checks_failed,
+
         }
 
 
