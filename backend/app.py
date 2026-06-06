@@ -442,6 +442,50 @@ def wait_and_finalize(app, sim_id, summary_path, start_time):
         # Throughput (req/s)
         sim.throughput = metrics.get("http_reqs", {}).get("rate", 0)
 
+
+        # ============================
+        # NUEVAS MÉTRICAS — LATENCIAS
+        # ============================
+
+        sim.lat_p50 = metrics.get("http_req_duration", {}).get("med", 0)
+        sim.lat_p90 = metrics.get("http_req_duration", {}).get("p(90)", 0)
+        sim.lat_p95 = metrics.get("http_req_duration", {}).get("p(95)", 0)
+        sim.lat_min = metrics.get("http_req_duration", {}).get("min", 0)
+        sim.lat_max = metrics.get("http_req_duration", {}).get("max", 0)
+
+        # ============================
+        # NUEVAS MÉTRICAS — INTERNAS
+        # ============================
+
+        sim.waiting_avg = metrics.get("http_req_waiting", {}).get("avg", 0)
+        sim.connecting_avg = metrics.get("http_req_connecting", {}).get("avg", 0)
+        sim.blocked_avg = metrics.get("http_req_blocked", {}).get("avg", 0)
+        sim.sending_avg = metrics.get("http_req_sending", {}).get("avg", 0)
+        sim.receiving_avg = metrics.get("http_req_receiving", {}).get("avg", 0)
+
+        # ============================
+        # NUEVAS MÉTRICAS — CARGA
+        # ============================
+
+        sim.total_requests = metrics.get("http_reqs", {}).get("count", 0)
+        sim.iterations = metrics.get("iterations", {}).get("count", 0)
+        sim.dropped_iterations = metrics.get("dropped_iterations", {}).get("count", 0)
+        sim.vus_max = metrics.get("vus_max", {}).get("max", 0)
+
+        # ============================
+        # NUEVAS MÉTRICAS — ERRORES
+        # ============================
+
+        sim.req_failed = metrics.get("http_req_failed", {}).get("fails", 0)
+        sim.req_passed = metrics.get("http_req_failed", {}).get("passes", 0)
+
+        # ============================
+        # NUEVAS MÉTRICAS — CHECKS
+        # ============================
+
+        sim.checks_passed = metrics.get("checks", {}).get("passes", 0)
+        sim.checks_failed = metrics.get("checks", {}).get("fails", 0)
+
         sim.status = "completed"
 
         db.session.commit()

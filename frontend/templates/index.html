@@ -137,6 +137,7 @@
           <th>VUs</th>
           <th>Throughput (req/s)</th>
           <th>Estado</th>
+          <th>Detalles</th>
         </tr>
       </thead>
       <tbody></tbody>
@@ -289,6 +290,29 @@
   </form>
 </div>
 
+<!-- Overlay -->
+<div id="sim-overlay"
+     style="display:none; position:fixed; top:0; left:0; width:100%; height:100%;
+            background:rgba(0,0,0,0.5); z-index:9998;">
+</div>
+
+<!-- Popup de detalles de simulación -->
+<div id="sim-popup"
+     style="display:none; position:fixed; top:50%; left:50%;
+            transform:translate(-50%, -50%);
+            width:500px; background:white; padding:20px;
+            border-radius:8px; box-shadow:0 4px 20px rgba(0,0,0,0.3);
+            z-index:9999;">
+
+  <h3>Detalles de simulación</h3>
+
+  <div id="sim-popup-content" style="max-height:70vh; overflow-y:auto;"></div>
+
+  <div style="text-align:center; margin-top:15px;">
+    <button type="button" onclick="cerrarSimPopup()" style="padding:8px 15px;">Cerrar</button>
+  </div>
+
+</div>
 
 
 <!-- <footer style="background-color:#b30000; padding:15px 0; text-align:center;">
@@ -533,6 +557,7 @@ async function loadSimulations() {
         <td>${sim.vus}</td>
         <td>${sim.throughput.toFixed(1)}</td>
         <td>${sim.status}</td>
+        <td><button onclick="verSimulacion(${sim.id})">🔍</button></td>
       `;
 
       tbody.appendChild(tr);
@@ -542,6 +567,64 @@ async function loadSimulations() {
     container.style.display = "none";
   }
 }
+
+async function verSimulacion(id) {
+    const res = await fetch(`{{ backend }}/api/simulations/${id}`);
+    const sim = await res.json();
+
+    const html = `
+      <h4>Latencias</h4>
+      <ul>
+        <li>P50: ${sim.lat_p50}</li>
+        <li>P90: ${sim.lat_p90}</li>
+        <li>P95: ${sim.lat_p95}</li>
+        <li>Mínima: ${sim.lat_min}</li>
+        <li>Máxima: ${sim.lat_max}</li>
+      </ul>
+
+      <h4>Métricas internas</h4>
+      <ul>
+        <li>Waiting avg: ${sim.waiting_avg}</li>
+        <li>Connecting avg: ${sim.connecting_avg}</li>
+        <li>Blocked avg: ${sim.blocked_avg}</li>
+        <li>Sending avg: ${sim.sending_avg}</li>
+        <li>Receiving avg: ${sim.receiving_avg}</li>
+      </ul>
+
+      <h4>Carga</h4>
+      <ul>
+        <li>Total requests: ${sim.total_requests}</li>
+        <li>Iterations: ${sim.iterations}</li>
+        <li>Dropped iterations: ${sim.dropped_iterations}</li>
+        <li>VUs max: ${sim.vus_max}</li>
+      </ul>
+
+      <h4>Errores</h4>
+      <ul>
+        <li>Requests fallidos: ${sim.req_failed}</li>
+        <li>Requests OK: ${sim.req_passed}</li>
+      </ul>
+
+      <h4>Checks</h4>
+      <ul>
+        <li>Checks OK: ${sim.checks_passed}</li>
+        <li>Checks KO: ${sim.checks_failed}</li>
+      </ul>
+    `;
+
+    document.getElementById("sim-popup-content").innerHTML = html;
+
+    document.getElementById("sim-overlay").style.display = "block";
+    document.getElementById("sim-popup").style.display = "block";
+}
+
+function cerrarSimPopup() {
+    document.getElementById("sim-overlay").style.display = "none";
+    document.getElementById("sim-popup").style.display = "none";
+}
+
+document.getElementById("sim-overlay").onclick = cerrarSimPopup;
+
 
 function waitForSimulationToFinish(simId) {
   const interval = setInterval(async () => {
