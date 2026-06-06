@@ -44,6 +44,12 @@
     select { padding: 3px;}
     .pagination { margin-top: 1rem; display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; }
     .pagination input { width: 60px; }
+    .sim-grid { display: flex; gap: 20px; margin-top: 15px; }
+    .sim-col { flex: 1; }
+    .sim-card { background: #f7f7f7; padding: 12px 15px; border-radius: 6px; margin-bottom: 20px; 
+      border: 1px solid #ddd; }
+    .sim-summary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 20px; 
+      margin-bottom: 20px; background: #fafafa; padding: 12px; border-radius: 6px; border: 1px solid #ddd; }
     @media print { 
       body * { display: none !important; } 
       #help-popup, #help-popup * { display: block !important;}
@@ -300,19 +306,16 @@
 <div id="sim-popup"
      style="display:none; position:fixed; top:50%; left:50%;
             transform:translate(-50%, -50%);
-            width:500px; background:white; padding:20px;
+            width:850px; background:white; padding:20px;
             border-radius:8px; box-shadow:0 4px 20px rgba(0,0,0,0.3);
             z-index:9999;">
-
   <h3>Detalles de simulación</h3>
-
   <div id="sim-popup-content" style="max-height:70vh; overflow-y:auto;"></div>
-
   <div style="text-align:center; margin-top:15px;">
     <button type="button" onclick="cerrarSimPopup()" style="padding:8px 15px;">Cerrar</button>
   </div>
-
 </div>
+
 
 
 <!-- <footer style="background-color:#b30000; padding:15px 0; text-align:center;">
@@ -572,51 +575,84 @@ async function verSimulacion(id) {
     const res = await fetch(`{{ backend }}/api/simulations/${id}`);
     const sim = await res.json();
 
-    const html = `
-      <h4>Latencias</h4>
-      <ul>
-        <li>P50: ${sim.lat_p50}</li>
-        <li>P90: ${sim.lat_p90}</li>
-        <li>P95: ${sim.lat_p95}</li>
-        <li>Mínima: ${sim.lat_min}</li>
-        <li>Máxima: ${sim.lat_max}</li>
-      </ul>
+    const resumen = `
+      <div class="sim-summary-grid">
+        <div><strong>Escenario:</strong> ${sim.scenario}</div>
+        <div><strong>Fecha:</strong> ${sim.created_at}</div>
 
-      <h4>Métricas internas</h4>
-      <ul>
-        <li>Waiting avg: ${sim.waiting_avg}</li>
-        <li>Connecting avg: ${sim.connecting_avg}</li>
-        <li>Blocked avg: ${sim.blocked_avg}</li>
-        <li>Sending avg: ${sim.sending_avg}</li>
-        <li>Receiving avg: ${sim.receiving_avg}</li>
-      </ul>
+        <div><strong>Duración:</strong> ${sim.duration} s</div>
+        <div><strong>Latencia media:</strong> ${sim.avg_latency_ms} ms</div>
 
-      <h4>Carga</h4>
-      <ul>
-        <li>Total requests: ${sim.total_requests}</li>
-        <li>Iterations: ${sim.iterations}</li>
-        <li>Dropped iterations: ${sim.dropped_iterations}</li>
-        <li>VUs max: ${sim.vus_max}</li>
-      </ul>
+        <div><strong>VUs:</strong> ${sim.vus}</div>
+        <div><strong>Throughput:</strong> ${sim.throughput} req/s</div>
 
-      <h4>Errores</h4>
-      <ul>
-        <li>Requests fallidos: ${sim.req_failed}</li>
-        <li>Requests OK: ${sim.req_passed}</li>
-      </ul>
-
-      <h4>Checks</h4>
-      <ul>
-        <li>Checks OK: ${sim.checks_passed}</li>
-        <li>Checks KO: ${sim.checks_failed}</li>
-      </ul>
+        <div><strong>Estado:</strong> ${sim.status}</div>
+      </div>
     `;
 
-    document.getElementById("sim-popup-content").innerHTML = html;
+    const columnas = `
+      <div class="sim-grid">
 
+        <div class="sim-col">
+          <div class="sim-card">
+            <h4>Latencias</h4>
+            <ul>
+              <li>P50: ${sim.lat_p50} ms</li>
+              <li>P90: ${sim.lat_p90} ms</li>
+              <li>P95: ${sim.lat_p95} ms</li>
+              <li>Mínima: ${sim.lat_min} ms</li>
+              <li>Máxima: ${sim.lat_max} ms</li>
+            </ul>
+          </div>
+
+          <div class="sim-card">
+            <h4>Carga</h4>
+            <ul>
+              <li>Total requests: ${sim.total_requests}</li>
+              <li>Iterations: ${sim.iterations}</li>
+              <li>Dropped iterations: ${sim.dropped_iterations}</li>
+              <li>VUs max: ${sim.vus_max}</li>
+            </ul>
+          </div>
+
+          <div class="sim-card">
+            <h4>Checks</h4>
+            <ul>
+              <li>Checks OK: ${sim.checks_passed}</li>
+              <li>Checks KO: ${sim.checks_failed}</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="sim-col">
+          <div class="sim-card">
+            <h4>Métricas internas</h4>
+            <ul>
+              <li>Waiting avg: ${sim.waiting_avg} ms</li>
+              <li>Connecting avg: ${sim.connecting_avg} ms</li>
+              <li>Blocked avg: ${sim.blocked_avg} ms</li>
+              <li>Sending avg: ${sim.sending_avg} ms</li>
+              <li>Receiving avg: ${sim.receiving_avg} ms</li>
+            </ul>
+          </div>
+
+          <div class="sim-card">
+            <h4>Errores</h4>
+            <ul>
+              <li>Requests fallidos: ${sim.req_failed}</li>
+              <li>Requests OK: ${sim.req_passed}</li>
+            </ul>
+          </div>
+        </div>
+
+      </div>
+    `;
+
+    document.getElementById("sim-popup-content").innerHTML = resumen + columnas;
     document.getElementById("sim-overlay").style.display = "block";
     document.getElementById("sim-popup").style.display = "block";
 }
+
 
 function cerrarSimPopup() {
     document.getElementById("sim-overlay").style.display = "none";
