@@ -4,7 +4,7 @@ metadata:
   name: frontend
   namespace: imv-simulacion
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: frontend
@@ -18,6 +18,13 @@ spec:
         image: caedockerid/frontend:latest
         ports:
         - containerPort: 5000
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "128Mi"
+          limits:
+            cpu: "200m"
+            memory: "256Mi"
         env:
         - name: BACKEND_URL
           valueFrom:
