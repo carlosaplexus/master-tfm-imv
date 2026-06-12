@@ -4,7 +4,7 @@ metadata:
   name: backend
   namespace: imv-simulacion
 spec:
-  replicas: 2
+  replicas: 3
   selector:
     matchLabels:
       app: backend
@@ -20,11 +20,11 @@ spec:
         - containerPort: 5001
         resources:
           requests:
-            cpu: "200m"
-            memory: "256Mi"
+            cpu: "300m"
+            memory: "512Mi"
           limits:
-            cpu: "500m"
-            memory: "512Mi"        
+            cpu: "1000m"
+            memory: "1Gi"        
         env:
         - name: DATABASE_URL
           valueFrom:
